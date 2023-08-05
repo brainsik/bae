@@ -10,11 +10,11 @@ func TestImageSize(t *testing.T) {
 	x_pixels := 128
 	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
 
-	expected := ImageSize{x_pixels, x_pixels / 2}
+	expect := ImageSize{x_pixels, x_pixels / 2}
 	result := p.ImageSize()
 
-	if result != expected {
-		t.Error(result, expected)
+	if result != expect {
+		t.Error(result, expect)
 	}
 }
 
@@ -25,9 +25,9 @@ func TestPlanePoint(t *testing.T) {
 	p := NewPlane(origin, size, x_pixels)
 
 	testCases := []struct {
-		name     string
-		point    ImagePoint
-		expected complex128
+		name   string
+		point  ImagePoint
+		expect complex128
 	}{
 		{"center", ImagePoint{x_pixels / 2, x_pixels / 2}, complex(0, 0)},
 		{"left-top", ImagePoint{0, x_pixels}, complex(-4, 4)},
@@ -36,8 +36,8 @@ func TestPlanePoint(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
 			result := p.PlanePoint(tc.point)
-			if result != tc.expected {
-				t.Error(result, tc.expected)
+			if result != tc.expect {
+				t.Error(result, tc.expect)
 			}
 		})
 	}
@@ -50,9 +50,9 @@ func TestImagePoint(t *testing.T) {
 	p := NewPlane(origin, size, x_pixels)
 
 	testCases := []struct {
-		name     string
-		point    complex128
-		expected ImagePoint
+		name   string
+		point  complex128
+		expect ImagePoint
 	}{
 		{"center", complex(0, 0), ImagePoint{x_pixels / 2, x_pixels / 2}},
 		{"left-top", complex(-4, -4), ImagePoint{0, x_pixels}},
@@ -61,8 +61,8 @@ func TestImagePoint(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
 			result := p.ImagePoint(tc.point)
-			if result != tc.expected {
-				t.Error(result, tc.expected)
+			if result != tc.expect {
+				t.Error(result, tc.expect)
 			}
 		})
 	}
@@ -78,9 +78,9 @@ func TestPlaneJSONMarshaler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("json.Marshal Error: %v", err)
 	}
-	expected := `{"origin":[2,2],"size":[8,4],"view":[-2,4,6,0],"image_size":[128,64]}`
-	if string(result) != expected {
-		t.Error(string(result), expected)
+	expect := `{"origin":[2,2],"size":[8,4],"view":[-2,4,6,0],"image_size":[128,64]}`
+	if string(result) != expect {
+		t.Error(string(result), expect)
 	}
 }
 
@@ -94,16 +94,16 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	}
 	result_width := result.ImageSize().width
 
-	expected := NewPlane(complex(2, 2), complex(8, 4), 128)
-	expected_width := expected.ImageSize().width
+	expect := NewPlane(complex(2, 2), complex(8, 4), 128)
+	expect_width := expect.ImageSize().width
 
-	if result.origin != expected.origin {
-		t.Error(result.origin, expected.origin)
+	if result.origin != expect.origin {
+		t.Error(result.origin, expect.origin)
 	}
-	if result.size != expected.size {
-		t.Error(result.size, expected.size)
+	if result.size != expect.size {
+		t.Error(result.size, expect.size)
 	}
-	if result_width != expected_width {
-		t.Error(result_width, expected_width)
+	if result_width != expect_width {
+		t.Error(result_width, expect_width)
 	}
 }
