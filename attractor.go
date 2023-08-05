@@ -13,8 +13,8 @@ import (
 type AttractorParams struct {
 	plane *Plane
 
-	f_z ZFunc
-	f_c ColorFunc
+	zf ZFunc
+	cf ColorFunc
 
 	c complex128
 
@@ -24,6 +24,36 @@ type AttractorParams struct {
 	r_start, r_end     float64
 	i_start, i_end     float64
 	r_points, i_points int
+}
+
+func (ap *AttractorParams) String() string {
+	return fmt.Sprintf(
+		"AttractorParams{\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
+			"real points: %v (%v -> %v)\nimag points: %v (%v -> %v)\n}",
+		ap.plane, ap.zf, ap.cf, ap.c, ap.iterations, ap.limit,
+		ap.r_points, ap.r_start, ap.r_end, ap.i_points, ap.i_start, ap.i_end)
+}
+
+func (ap AttractorParams) NewAllPoints(iterations int, cf ColorFunc) AttractorParams {
+	if iterations <= 0 {
+		iterations = ap.iterations
+	}
+
+	return AttractorParams{
+		cf:         cf,
+		iterations: iterations,
+
+		plane:    ap.plane,
+		zf:       ap.zf,
+		c:        ap.c,
+		limit:    ap.limit,
+		r_start:  real(ap.plane.view.min),
+		r_end:    real(ap.plane.view.max),
+		i_start:  imag(ap.plane.view.max),
+		i_end:    imag(ap.plane.view.min),
+		r_points: ap.plane.ImageSize().width,
+		i_points: ap.plane.ImageSize().height,
+	}
 }
 
 func (ap *AttractorParams) MakeProblemSet() (problems []CalcPoint) {
@@ -51,7 +81,7 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 
 	var total_its, num_escaped, num_periodic uint
 	histogram = make(CalcResults)
-	f_zc := ap.f_z.f
+	f_zc := ap.zf.f
 
 	fmt.Printf("[%v] 🧠 Workin %v\n", time.Now().Format(time.StampMilli), calc_id)
 	for progress, pt := range problems {
@@ -117,8 +147,8 @@ func (ap *AttractorParams) CalculateParallel(concurrency int) (histogram CalcRes
 	problems := ap.MakeProblemSet()
 	chunk_size := len(problems) / concurrency
 
+	fmt.Printf("%v\n\n", ap)
 	fmt.Printf("Logical CPUs: %v (will use %v concurrent routines)\n", runtime.NumCPU(), concurrency)
-	fmt.Printf("%v\nIterations: %v (per orbit)\n", ap.plane, ap.iterations)
 	fmt.Printf("Orbits to calculate: %d (~%d per routine)\n", len(problems), chunk_size)
 
 	// Calculate points.
@@ -170,7 +200,7 @@ func (ap *AttractorParams) ColorImage(concurrency int) {
 		histogram = ap.CalculateParallel(concurrency)
 	}
 
-	colors := ap.f_c.f(histogram)
+	colors := ap.cf.f(histogram)
 
 	for pt, rgba := range colors {
 		ap.plane.image.Set(pt.x, pt.y, rgba)

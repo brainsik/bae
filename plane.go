@@ -64,7 +64,7 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
-		"Plane{\tOrigin: %v\n\tView:   %v\n\tSteps:  %v, %vi\n\tImage:  %vx%v\n}",
+		"Plane{\nOrigin: %v\nView:   %v\nSteps:  %v, %vi\nImage:  %vx%v\n}",
 		p.origin, p.view, p.r_step, p.i_step, p.ImageSize().width, p.ImageSize().height)
 }
 

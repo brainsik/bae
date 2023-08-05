@@ -12,9 +12,17 @@ type ZFunc struct {
 	f    func(z, c complex128) complex128
 }
 
+func (zf ZFunc) String() string {
+	return fmt.Sprintf("ZFunc: %s", zf.desc)
+}
+
 type ColorFunc struct {
 	desc string
 	f    func(CalcResults) ColorResults
+}
+
+func (cf ColorFunc) String() string {
+	return fmt.Sprintf("ColorFunc: %s", cf.desc)
 }
 
 type Calculator func(z, c complex128) complex128
