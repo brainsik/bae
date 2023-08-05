@@ -26,8 +26,20 @@ var luma = ColorFunc{
 	},
 }
 
+var luma_ceil_12bit = ColorFunc{
+	desc: `Gamma corrected brightness with original values clipped at 1023`,
+	f: func(histogram CalcResults) (coloring ColorResults) {
+		coloring = make(ColorResults)
+		for xy, v := range histogram {
+			brightness := uint8(255 * scale(v.val, 4095))
+			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
+		}
+		return
+	},
+}
+
 var luma_ceil_10bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 1023`,
+	desc: `Gamma corrected brightness with original values clipped at 1023`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		for xy, v := range histogram {
@@ -38,8 +50,24 @@ var luma_ceil_10bit = ColorFunc{
 	},
 }
 
+var luma_ceil_10bit_showclip = ColorFunc{
+	desc: `Gamma corrected brightness with original values clipped at 1023 and shown`,
+	f: func(histogram CalcResults) (coloring ColorResults) {
+		coloring = make(ColorResults)
+		for xy, v := range histogram {
+			if v.val >= 1024 {
+				coloring[xy] = color.NRGBA{0xFF, 0xD4, 0x79, 255}
+			} else {
+				brightness := uint8(255 * scale(v.val, 1023))
+				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
+			}
+		}
+		return
+	},
+}
+
 var luma_ceil_8bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 255`,
+	desc: `Gamma corrected brightness with original values clipped at 255`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		for xy, v := range histogram {
@@ -51,7 +79,7 @@ var luma_ceil_8bit = ColorFunc{
 }
 
 var luma_ceil_6bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 63`,
+	desc: `Gamma corrected brightness with original values clipped at 63`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		for xy, v := range histogram {
@@ -63,7 +91,7 @@ var luma_ceil_6bit = ColorFunc{
 }
 
 var luma_ceil_80pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 80% of max`,
+	desc: `Gamma corrected brightness with original values clipped at 80% of max`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := 0.80 * float64(histogram.Max())
@@ -77,7 +105,7 @@ var luma_ceil_80pct = ColorFunc{
 }
 
 var luma_ceil_40pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 40% of max`,
+	desc: `Gamma corrected brightness with original values clipped at 40% of max`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := 0.40 * float64(histogram.Max())
@@ -91,7 +119,7 @@ var luma_ceil_40pct = ColorFunc{
 }
 
 var luma_ceil_20pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 20% of max`,
+	desc: `Gamma corrected brightness with original values clipped at 20% of max`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := 0.20 * float64(histogram.Max())
@@ -105,7 +133,7 @@ var luma_ceil_20pct = ColorFunc{
 }
 
 var luma_ceil_10pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at 10% of max`,
+	desc: `Gamma corrected brightness with original values clipped at 10% of max`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := 0.1 * float64(histogram.Max())
@@ -119,7 +147,7 @@ var luma_ceil_10pct = ColorFunc{
 }
 
 var luma_ceil_sqrt = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at sqrt(max)`,
+	desc: `Gamma corrected brightness with original values clipped at sqrt(max)`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := math.Sqrt(float64(histogram.Max()))
@@ -133,7 +161,7 @@ var luma_ceil_sqrt = ColorFunc{
 }
 
 var luma_ceil_log = ColorFunc{
-	desc: `Gamma corrected brightness with original values cutoff at log(max)`,
+	desc: `Gamma corrected brightness with original values clipped at log(max)`,
 	f: func(histogram CalcResults) (coloring ColorResults) {
 		coloring = make(ColorResults)
 		max := math.Log(float64(histogram.Max()))
