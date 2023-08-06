@@ -70,6 +70,19 @@ func (cr CalcResults) Add(xy ImagePoint, z complex128, val uint) *CalcResult {
 	return cr[xy]
 }
 
+func (cr CalcResults) Merge(src CalcResults) {
+	for k, v := range src {
+		dst, ok := cr[k]
+		if !ok {
+			cr[k] = v
+		} else {
+			dst.val += v.val
+			dst.escaped = dst.escaped || v.escaped
+			dst.periodic = dst.periodic || v.periodic
+		}
+	}
+}
+
 func (cr CalcResults) PrintStats() {
 	var min, max uint
 	var periodic, escaped uint

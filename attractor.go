@@ -184,15 +184,9 @@ func (ap *AttractorParams) CalculateParallel(concurrency int) (histogram CalcRes
 	histogram = make(CalcResults)
 	chunks_received := 0
 	for r_chunk := range result_ch {
-		fmt.Printf("[%s] Got chunk of %d results\n", TimestampMilli(), len(r_chunk))
-		for xy, cr := range r_chunk {
-			hxy, ok := histogram[xy]
-			if !ok {
-				histogram[xy] = cr
-			} else {
-				hxy.Add(cr.val)
-			}
-		}
+		fmt.Printf("[%s] Got chunk %d/%d with %d results\n", TimestampMilli(),
+			chunks_received+1, concurrency, len(r_chunk))
+		histogram.Merge(r_chunk)
 		chunks_received++
 		if chunks_received >= concurrency {
 			break
