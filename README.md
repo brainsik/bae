@@ -1,9 +1,8 @@
 ## ToDo
 
+* Use Log() instead of Printf()?
 * ColorFunc: Add a params type so we can parameterize them.
-* Add Escaped and Periodic fields to CalcResults
-* Nuke CalcPoint type? We aren't using the xy component at all … do we need this?
-* Benchmark different concurrencies and find what's best
+* Nuke CalcPoint type? We aren't using the xy component at all … do we need this or can we use a basic type instead of the struct?
 
 ## Plane Mapping
 
