@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/png"
 	"math/cmplx"
+	"math/rand"
 	"os"
 	"runtime"
 	"time"
@@ -27,8 +28,9 @@ type AttractorParams struct {
 func (ap *AttractorParams) String() string {
 	return fmt.Sprintf(
 		"AttractorParams{\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
+			"calc area: %v\n"+
 			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
-		ap.plane, ap.zf, ap.cf, ap.c, ap.iterations, ap.limit,
+		ap.plane, ap.zf, ap.cf, ap.c, ap.iterations, ap.limit, ap.calc_area,
 		ap.r_points, real(ap.calc_area.min), real(ap.calc_area.max), ap.calc_area.RealLen(),
 		ap.i_points, imag(ap.calc_area.min), imag(ap.calc_area.max), ap.calc_area.ImagLen())
 }
@@ -149,6 +151,11 @@ func (ap *AttractorParams) CalculateParallel(concurrency int) (histogram CalcRes
 
 	problems := ap.MakeProblemSet()
 	chunk_size := len(problems) / concurrency
+
+	// Randomly distribute points to prevent calcuation hot spots.
+	rand.Shuffle(len(problems), func(a, b int) {
+		problems[a], problems[b] = problems[b], problems[a]
+	})
 
 	fmt.Printf("%v\n\n", ap)
 	fmt.Printf("Logical CPUs: %v (will use %v concurrent routines)\n", runtime.NumCPU(), concurrency)
