@@ -19,9 +19,9 @@ func TestImageSize(t *testing.T) {
 }
 
 func TestPlanePoint(t *testing.T) {
-	origin := complex(0, 0)
-	size := complex(8, 8)
-	x_pixels := 128
+	origin := complex(-2, 2)
+	size := complex(4, 4)
+	x_pixels, y_pixels := 128, 128
 	p := NewPlane(origin, size, x_pixels)
 
 	testCases := []struct {
@@ -29,9 +29,9 @@ func TestPlanePoint(t *testing.T) {
 		point  ImagePoint
 		expect complex128
 	}{
-		{"center", ImagePoint{x_pixels / 2, x_pixels / 2}, complex(0, 0)},
-		{"left-top", ImagePoint{0, x_pixels}, complex(-4, 4)},
-		{"right-bottom", ImagePoint{x_pixels, 0}, complex(4, -4)},
+		{"xy-center", ImagePoint{x_pixels / 2, y_pixels / 2}, origin},
+		{"xy-left-top", ImagePoint{0, 0}, complex(-4, 4)},
+		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}, complex(0, 0)},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
@@ -44,9 +44,9 @@ func TestPlanePoint(t *testing.T) {
 }
 
 func TestImagePoint(t *testing.T) {
-	origin := complex(0, 0)
-	size := complex(8, 8)
-	x_pixels := 128
+	origin := complex(-2, 2)
+	size := complex(4, 4)
+	x_pixels, y_pixels := 128, 128
 	p := NewPlane(origin, size, x_pixels)
 
 	testCases := []struct {
@@ -54,9 +54,9 @@ func TestImagePoint(t *testing.T) {
 		point  complex128
 		expect ImagePoint
 	}{
-		{"center", complex(0, 0), ImagePoint{x_pixels / 2, x_pixels / 2}},
-		{"left-top", complex(-4, -4), ImagePoint{0, x_pixels}},
-		{"right-bottom", complex(4, 4), ImagePoint{x_pixels, 0}},
+		{"z-center", origin, ImagePoint{x_pixels / 2, y_pixels / 2}},
+		{"z-left-top", complex(-4, 4), ImagePoint{0, 0}},
+		{"z-right-bottom", complex(0, 0), ImagePoint{x_pixels, y_pixels}},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
@@ -78,14 +78,14 @@ func TestPlaneJSONMarshaler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("json.Marshal Error: %v", err)
 	}
-	expect := `{"origin":[2,2],"size":[8,4],"view":[-2,4,6,0],"image_size":[128,64]}`
+	expect := `{"origin":[2,2],"size":[8,4],"view":[-2,0,6,4],"image_size":[128,64]}`
 	if string(result) != expect {
 		t.Error(string(result), expect)
 	}
 }
 
 func TestPlaneJSONUnmarshaler(t *testing.T) {
-	data := []byte(`{"origin":[2,2],"size":[8,4],"view":[-2,4,6,0],"image_size":[128,64]}`)
+	data := []byte(`{"origin":[2,2],"size":[8,4],"view":[-2,0,6,4],"image_size":[128,64]}`)
 
 	var result Plane
 	err := json.Unmarshal(data, &result)

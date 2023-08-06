@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/png"
 	"math/cmplx"
-	"math/rand"
 	"os"
 	"runtime"
 	"time"
@@ -21,17 +20,17 @@ type AttractorParams struct {
 	iterations int
 	limit      float64
 
-	r_start, r_end     float64
-	i_start, i_end     float64
+	calc_area          PlaneView
 	r_points, i_points int
 }
 
 func (ap *AttractorParams) String() string {
 	return fmt.Sprintf(
 		"AttractorParams{\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
-			"real points: %v (%v -> %v)\nimag points: %v (%v -> %v)\n}",
+			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
 		ap.plane, ap.zf, ap.cf, ap.c, ap.iterations, ap.limit,
-		ap.r_points, ap.r_start, ap.r_end, ap.i_points, ap.i_start, ap.i_end)
+		ap.r_points, real(ap.calc_area.min), real(ap.calc_area.max), ap.calc_area.RealLen(),
+		ap.i_points, imag(ap.calc_area.min), imag(ap.calc_area.max), ap.calc_area.ImagLen())
 }
 
 func (ap AttractorParams) NewAllPoints(iterations int, cf ColorFunc) AttractorParams {
@@ -40,37 +39,46 @@ func (ap AttractorParams) NewAllPoints(iterations int, cf ColorFunc) AttractorPa
 	}
 
 	return AttractorParams{
+		// modified
 		cf:         cf,
 		iterations: iterations,
+		calc_area:  ap.plane.view,
 
+		// unchanged
 		plane:    ap.plane,
 		zf:       ap.zf,
 		c:        ap.c,
 		limit:    ap.limit,
-		r_start:  real(ap.plane.view.min),
-		r_end:    real(ap.plane.view.max),
-		i_start:  imag(ap.plane.view.max),
-		i_end:    imag(ap.plane.view.min),
 		r_points: ap.plane.ImageSize().width,
 		i_points: ap.plane.ImageSize().height,
 	}
 }
 
 func (ap *AttractorParams) MakeProblemSet() (problems []CalcPoint) {
-	r_step := (ap.r_end - ap.r_start) / float64(ap.r_points)
-	i_step := (ap.i_end - ap.i_start) / float64(ap.i_points)
-	for r := ap.r_start; r <= ap.r_end; r += r_step {
-		for i := ap.i_start; i <= ap.i_end; i += i_step {
-			z := complex(r, i)
-			problems = append(problems, CalcPoint{z: z, xy: ap.plane.ImagePoint(z)})
-		}
+	// TODO: Return an Error instead?
+	if ap.calc_area.RealLen() > 0 && ap.r_points <= 1 {
+		panic("Undefined how to make a single point problem on a non-single point line." +
+			"Either add more points or set the length of real(calc_area) to be a single point.")
+	}
+	if ap.calc_area.ImagLen() > 0 && ap.i_points <= 1 {
+		panic("Undefined how to make a single point problem on a non-single point line." +
+			"Either add more points or set the length of imag(calc_area) to be a single point.")
 	}
 
-	// Randomly distribute points to prevent calcuation hot spots from high iteration
-	// points being near one another.
-	rand.Shuffle(len(problems), func(a, b int) {
-		problems[a], problems[b] = problems[b], problems[a]
-	})
+	r_step := ap.calc_area.RealLen() / float64(ap.r_points-1)
+	i_step := ap.calc_area.ImagLen() / float64(ap.i_points-1)
+
+	r := real(ap.calc_area.min)
+	for r_pt := 0; r_pt < ap.r_points; r_pt++ {
+		i := imag(ap.calc_area.min)
+		for i_pt := 0; i_pt < ap.i_points; i_pt++ {
+			z := complex(r, i)
+			xy := ap.plane.ImagePoint(z)
+			problems = append(problems, CalcPoint{z: z, xy: xy})
+			i += i_step
+		}
+		r += r_step
+	}
 	return
 }
 
@@ -83,7 +91,7 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 	histogram = make(CalcResults)
 	f_zc := ap.zf.f
 
-	fmt.Printf("[%v] 🧠 Workin %v\n", time.Now().Format(time.StampMilli), calc_id)
+	// fmt.Printf("[%v] 🧠 Workin %v\n", time.Now().Format(time.StampMilli), calc_id)
 	for progress, pt := range problems {
 		// z0 := pt.z{}
 		z := pt.z

@@ -32,6 +32,10 @@ type CalcPoint struct {
 	xy ImagePoint
 }
 
+func (cp CalcPoint) String() string {
+	return fmt.Sprintf("{%v, %v}", cp.z, cp.xy)
+}
+
 type CalcResult struct {
 	z   complex128
 	val uint

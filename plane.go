@@ -20,15 +20,22 @@ type PlaneView struct {
 	min, max complex128
 }
 
-func (view PlaneView) String() string {
-	return fmt.Sprintf("%v, %v", view.min, view.max)
+func (pv PlaneView) String() string {
+	return fmt.Sprintf("%v, %v", pv.min, pv.max)
+}
+
+func (pv PlaneView) RealLen() float64 {
+	return real(pv.max) - real(pv.min)
+}
+
+func (pv PlaneView) ImagLen() float64 {
+	return imag(pv.max) - imag(pv.min)
 }
 
 func NewPlane(origin, size complex128, x_pixels int) *Plane {
-	// orient like we think of a pixel image: start -> top-left, end -> bottom-right
 	view := PlaneView{
-		complex(real(origin)-real(size)/2.0, imag(origin)+imag(size)/2.0),
-		complex(real(origin)+real(size)/2.0, imag(origin)-imag(size)/2.0)}
+		complex(real(origin)-real(size)/2.0, imag(origin)-imag(size)/2.0),
+		complex(real(origin)+real(size)/2.0, imag(origin)+imag(size)/2.0)}
 
 	_aspect_ratio := imag(size) / real(size)
 	y_pixels := int(float64(x_pixels) * _aspect_ratio)
@@ -64,14 +71,14 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
-		"Plane{\nOrigin: %v\nView:   %v\nSteps:  %v, %vi\nImage:  %vx%v\n}",
-		p.origin, p.view, p.r_step, p.i_step, p.ImageSize().width, p.ImageSize().height)
+		"Plane{\nOrigin: %v\nView:   %v\nImage size:  %v\nPixel size:  %v\n}",
+		p.origin, p.view, p.ImageSize(), complex(p.r_step, p.i_step))
 }
 
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 	r := real(p.view.min) + float64(px.x)*p.r_step
 	// i on the complex plane and y on the pixel plane increase in opposite directions
-	i := -imag(p.view.min) + float64(px.y)*p.i_step
+	i := imag(p.view.max) - float64(px.y)*p.i_step
 	return complex(r, i)
 }
 
@@ -79,10 +86,19 @@ type ImagePoint struct {
 	x, y int
 }
 
+func (ip ImagePoint) String() string {
+	return fmt.Sprintf("(%v, %v)", ip.x, ip.y)
+}
+
 func (p *Plane) ImagePoint(z complex128) ImagePoint {
-	x := int((real(z) - real(p.view.min)) * float64(p.x_step))
-	// y on the pixel plane and i on the complex plane increase in opposite directions
-	y := -int((imag(z) - imag(p.view.min)) * float64(p.y_step))
+	// reorient view so min is (0, 0)
+	z_adj := z - p.view.min
+
+	x := int(real(z_adj) * float64(p.x_step))
+	y := int(imag(z_adj) * float64(p.y_step))
+	// Flip y, it increases in the opposite direction as i.
+	y = p.ImageSize().width - y
+
 	return ImagePoint{x, y}
 }
 
@@ -93,6 +109,10 @@ func (p *Plane) Set(z complex128, rgba color.NRGBA) {
 
 type ImageSize struct {
 	width, height int
+}
+
+func (is ImageSize) String() string {
+	return fmt.Sprintf("%vx%v", is.width, is.height)
 }
 
 func (p *Plane) ImageSize() ImageSize {
