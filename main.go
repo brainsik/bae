@@ -9,7 +9,7 @@ const WIDTH = 2560
 const ASPECT = 0.625
 
 func main() {
-	params := &coldwave2
+	params := &coldwave1_allpts
 	params.ColorImage(0)
 	params.WritePNG("image.png")
 }

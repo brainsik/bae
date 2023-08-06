@@ -93,17 +93,18 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 
 	// fmt.Printf("[%v] 🧠 Workin %v\n", time.Now().Format(time.StampMilli), calc_id)
 	for progress, pt := range problems {
-		// z0 := pt.z{}
-		z := pt.z
 		// Iterate point.
+		z := pt.z
 		rag := make(map[complex128]bool)
 		for its := 0; its < ap.iterations; its++ {
-			// Actual calculation.
-			z = f_zc(z, ap.c)
 			total_its++
+
+			z = f_zc(z, ap.c)
+			xy := ap.plane.ImagePoint(z)
 
 			// Escaped?
 			if cmplx.Abs(z) > ap.limit {
+				histogram.Add(xy, z, 1).escaped = true
 				num_escaped++
 				// fmt.Printf("Point %v escaped after %v iterations\n", z0, its)
 				break
@@ -111,20 +112,14 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 
 			// Periodic?
 			if rag[z] {
+				histogram.Add(xy, z, 1).periodic = true
 				num_periodic++
 				// fmt.Printf("Point %v become periodic after %v iterations\n", z0, its)
 				break
 			}
 			rag[z] = true
 
-			// Add iteration to histogram.
-			xy := ap.plane.ImagePoint(z)
-			hxy, ok := histogram[xy]
-			if !ok {
-				histogram[xy] = &CalcResult{z, 1}
-			} else {
-				hxy.Add(1)
-			}
+			histogram.Add(xy, z, 1)
 		}
 
 		// Show progress.
@@ -207,6 +202,7 @@ func (ap *AttractorParams) ColorImage(concurrency int) {
 	} else {
 		histogram = ap.CalculateParallel(concurrency)
 	}
+	histogram.PrintStats()
 
 	colors := ap.cf.f(histogram)
 

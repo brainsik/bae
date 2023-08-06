@@ -1,9 +1,9 @@
 ## ToDo
 
-* AttractorParms: Move from r/i_start/end to a PlaneView
 * ColorFunc: Add a params type so we can parameterize them.
-* Add Escaped and Periodic bools to CalcResults
+* Add Escaped and Periodic fields to CalcResults
 * Nuke CalcPoint type? We aren't using the xy component at all … do we need this?
+* Benchmark different concurrencies and find what's best
 
 ## Plane Mapping
 
