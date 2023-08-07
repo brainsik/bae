@@ -144,12 +144,16 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 	return
 }
 
-func (ap *AttractorParams) CalculateParallel(concurrency int) (histogram CalcResults) {
+func (ap *AttractorParams) CalculateParallel(concurrency int, style CalcStyle) (histogram CalcResults) {
 	if concurrency == 0 {
 		concurrency = int(1.5 * float64(runtime.NumCPU()))
 	}
 
 	problems := ap.MakeProblemSet()
+	if len(problems) < concurrency {
+		concurrency = len(problems)
+	}
+
 	chunk_size := len(problems) / concurrency
 
 	// Randomly distribute points to prevent calcuation hot spots.
