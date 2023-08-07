@@ -9,8 +9,8 @@ const WIDTH = 1920
 const ASPECT = 0.625
 
 func main() {
-	params := &coldwave1
-	params.ColorImage(6, Julia)
+	params := &burning_ship
+	params.ColorImage(6, Mandelbrot)
 	params.WritePNG("image.png")
 }
 
@@ -18,40 +18,31 @@ func TimestampMilli() string {
 	return time.Now().Format(time.StampMilli)
 }
 
-var mandelbrot = AttractorParams{
-	plane: NewPlane(complex(-0.75, 0), complex(3, 3*ASPECT), WIDTH),
+var burning_ship = CalcParams{
+	plane: NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT), WIDTH),
 
-	zf: mandelbrot_f,
+	zf: burnining_ship_zf,
 	cf: escaped_blue,
-	c:  complex(0, 0), // unused in mandelbrot
 
-	calc_area: PlaneView{complex(-2, -1.25), complex(2, 1.25)}, // unused in mandelbrot (for now)
-	r_points:  WIDTH,
-	i_points:  WIDTH * ASPECT,
-
-	iterations: 64,
+	iterations: 128,
 	limit:      4,
 }
 
-var julia = AttractorParams{
+var julia = CalcParams{
 	plane: NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
 
-	zf: mandelbrot_f,
+	zf: mandelbrot_zf,
 	cf: escaped_blue,
 	c:  complex(0.285, 0.01),
-
-	calc_area: PlaneView{complex(-2, -1.25), complex(2, 1.25)}, // unused in mandelbrot/julia (for now)
-	r_points:  WIDTH,
-	i_points:  WIDTH * ASPECT,
 
 	iterations: 280,
 	limit:      4,
 }
 
-var klein = AttractorParams{
+var klein = CalcParams{
 	plane: NewPlane(complex(0, -1.5), complex(2.6, 2.6*ASPECT), WIDTH),
 
-	zf: burning_ship,
+	zf: klein_zf,
 	cf: luma_ceil_10pct,
 	c:  complex(-0.172, -1.136667),
 
@@ -63,10 +54,10 @@ var klein = AttractorParams{
 	limit:      4,
 }
 
-var coldwave1 = AttractorParams{
+var coldwave1 = CalcParams{
 	plane: NewPlane(complex(-0.19, -0.1), complex(0.8, 0.8*ASPECT), WIDTH),
 
-	zf: burning_ship,
+	zf: klein_zf,
 	cf: luma_ceil_6bit,
 	c:  complex(0, 0),
 
@@ -80,10 +71,10 @@ var coldwave1 = AttractorParams{
 
 var coldwave1_allpts = coldwave1.NewAllPoints(16, luma_ceil_8bit)
 
-var coldwave2 = AttractorParams{
+var coldwave2 = CalcParams{
 	plane: NewPlane(complex(-0.22, -1.65), complex(4, 4*ASPECT), WIDTH),
 
-	zf: burning_ship,
+	zf: klein_zf,
 	cf: luma_ceil_20pct,
 	c:  complex(-0.1278, 0.0),
 
