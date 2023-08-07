@@ -56,7 +56,7 @@ func (ap AttractorParams) NewAllPoints(iterations int, cf ColorFunc) AttractorPa
 	}
 }
 
-func (ap *AttractorParams) MakeProblemSet() (problems []CalcPoint) {
+func (ap *AttractorParams) MakePlaneProblemSet() (problems []CalcPoint) {
 	// TODO: Return an Error instead?
 	if ap.calc_area.RealLen() > 0 && ap.r_points <= 1 {
 		panic("Undefined how to make a single point problem on a non-single point line." +
@@ -84,29 +84,53 @@ func (ap *AttractorParams) MakeProblemSet() (problems []CalcPoint) {
 	return
 }
 
-func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
+func (ap *AttractorParams) MakeImageProblemSet() (problems []CalcPoint) {
+	for x := 0; x < ap.plane.ImageSize().width; x++ {
+		for y := 0; y < ap.plane.ImageSize().height; y++ {
+			xy := ImagePoint{x: x, y: y}
+			z := ap.plane.PlanePoint(xy)
+			problems = append(problems, CalcPoint{z: z, xy: xy})
+		}
+	}
+	return
+}
+
+func (ap *AttractorParams) Calculate(problems []CalcPoint, style CalcStyle) (histogram CalcResults) {
 	t_start := time.Now()
 	calc_id := fmt.Sprintf("%p", problems)
 	showed_progress := make(map[int]bool)
+
+	img_width := ap.plane.ImageSize().width
+	img_height := ap.plane.ImageSize().height
 
 	var total_its, num_escaped, num_periodic uint
 	histogram = make(CalcResults)
 	f_zc := ap.zf.f
 
-	// fmt.Printf("[%v] 🧠 Workin %v\n", time.Now().Format(time.StampMilli), calc_id)
 	for progress, pt := range problems {
-		// Iterate point.
-		z := pt.z
+		var z, c complex128
+		if style == Mandelbrot {
+			z = complex(0, 0)
+			c = pt.z
+		} else {
+			z = pt.z
+			c = ap.c
+		}
+
 		rag := make(map[complex128]bool)
 		for its := 0; its < ap.iterations; its++ {
 			total_its++
 
-			z = f_zc(z, ap.c)
+			z = f_zc(z, c)
 			xy := ap.plane.ImagePoint(z)
 
 			// Escaped?
 			if cmplx.Abs(z) > ap.limit {
-				histogram.Add(xy, z, 1).escaped = true
+				if style == Attractor {
+					histogram.Add(xy, z, 1).escaped = true
+				} else {
+					histogram.Add(pt.xy, pt.z, 1).escaped = true
+				}
 				num_escaped++
 				// fmt.Printf("Point %v escaped after %v iterations\n", z0, its)
 				break
@@ -114,14 +138,25 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 
 			// Periodic?
 			if rag[z] {
-				histogram.Add(xy, z, 1).periodic = true
+				if style == Attractor {
+					histogram.Add(xy, z, 1).periodic = true
+				} else {
+					histogram.Add(pt.xy, pt.z, 1).periodic = true
+				}
 				num_periodic++
 				// fmt.Printf("Point %v become periodic after %v iterations\n", z0, its)
 				break
 			}
 			rag[z] = true
 
-			histogram.Add(xy, z, 1)
+			if style == Attractor {
+				// Only add to histogram if pixel is in the image plane.
+				if xy.x >= 0 && xy.x <= img_width && xy.y >= 0 && xy.y <= img_height {
+					histogram.Add(xy, z, 1)
+				}
+			} else {
+				histogram.Add(pt.xy, pt.z, 1)
+			}
 		}
 
 		// Show progress.
@@ -149,7 +184,13 @@ func (ap *AttractorParams) CalculateParallel(concurrency int, style CalcStyle) (
 		concurrency = int(1.5 * float64(runtime.NumCPU()))
 	}
 
-	problems := ap.MakeProblemSet()
+	var problems []CalcPoint
+	if style == Attractor {
+		problems = ap.MakePlaneProblemSet()
+	} else {
+		problems = ap.MakeImageProblemSet()
+	}
+
 	if len(problems) < concurrency {
 		concurrency = len(problems)
 	}
@@ -180,7 +221,7 @@ func (ap *AttractorParams) CalculateParallel(concurrency int, style CalcStyle) (
 		fmt.Printf("[%v] 🚀 Launch %p | orbits %d - %d\n",
 			time.Now().Format(time.StampMilli), p_chunk, chunk_start, chunk_end)
 		go func() {
-			result_ch <- ap.Calculate(p_chunk)
+			result_ch <- ap.Calculate(p_chunk, style)
 		}()
 	}
 
@@ -198,17 +239,11 @@ func (ap *AttractorParams) CalculateParallel(concurrency int, style CalcStyle) (
 	return
 }
 
-func (ap *AttractorParams) ColorImage(concurrency int) {
-	var histogram CalcResults
-	if concurrency == 1 {
-		histogram = ap.Calculate(ap.MakeProblemSet())
-	} else {
-		histogram = ap.CalculateParallel(concurrency)
-	}
+func (ap *AttractorParams) ColorImage(concurrency int, style CalcStyle) {
+	histogram := ap.CalculateParallel(concurrency, style)
 	histogram.PrintStats()
 
 	colors := ap.cf.f(histogram)
-
 	for pt, rgba := range colors {
 		ap.plane.image.Set(pt.x, pt.y, rgba)
 	}

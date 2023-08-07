@@ -1,5 +1,10 @@
 ## ToDo
 
+* Refactor AttractorParams to CalcParams
+* Move CalcStyle into CalcParams
+* BUG: WTF is going on with ap.calc_area?? Something is not right. Changing the size of the plane seems change where you're oriented in it. This is perhaps a problem with MakeProblemSet because adding a separate MakeProblemSet for Juliabrots (where we iterate over the image plane instead of the complex plane to make the problem set) makes the issue go away. Something is up.
+* If we fix this bug ☝️ then we _may_ be able to drop the two MakeProblemSet functions and have just one. I say may because the z <-> xy mapping is not 1:1 and separating problem set creators by whether they are based on the complex plane or the image plane is maybe just correct.
+* ?? Instead of PlanePoint and ImagePoint, move to CmplxPoint and ImagePoint and rename other things accordingly?
 * Use Log() instead of Printf()?
 * ColorFunc: Add a params type so we can parameterize them.
 * Nuke CalcPoint type? We aren't using the xy component at all … do we need this or can we use a basic type instead of the struct?

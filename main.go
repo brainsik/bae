@@ -5,17 +5,47 @@ import (
 	"time"
 )
 
-const WIDTH = 2560
+const WIDTH = 1920
 const ASPECT = 0.625
 
 func main() {
-	params := &coldwave1_allpts
-	params.ColorImage(3)
+	params := &coldwave1
+	params.ColorImage(6, Julia)
 	params.WritePNG("image.png")
 }
 
 func TimestampMilli() string {
 	return time.Now().Format(time.StampMilli)
+}
+
+var mandelbrot = AttractorParams{
+	plane: NewPlane(complex(-0.75, 0), complex(3, 3*ASPECT), WIDTH),
+
+	zf: mandelbrot_f,
+	cf: escaped_blue,
+	c:  complex(0, 0), // unused in mandelbrot
+
+	calc_area: PlaneView{complex(-2, -1.25), complex(2, 1.25)}, // unused in mandelbrot (for now)
+	r_points:  WIDTH,
+	i_points:  WIDTH * ASPECT,
+
+	iterations: 64,
+	limit:      4,
+}
+
+var julia = AttractorParams{
+	plane: NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
+
+	zf: mandelbrot_f,
+	cf: escaped_blue,
+	c:  complex(0.285, 0.01),
+
+	calc_area: PlaneView{complex(-2, -1.25), complex(2, 1.25)}, // unused in mandelbrot/julia (for now)
+	r_points:  WIDTH,
+	i_points:  WIDTH * ASPECT,
+
+	iterations: 280,
+	limit:      4,
 }
 
 var klein = AttractorParams{

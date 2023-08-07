@@ -4,27 +4,16 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-	"math/cmplx"
 	"sort"
 )
 
-type ZFunc struct {
-	desc string
-	f    func(z, c complex128) complex128
-}
+type CalcStyle int
 
-func (zf ZFunc) String() string {
-	return fmt.Sprintf("ZFunc: %s", zf.desc)
-}
-
-type ColorFunc struct {
-	desc string
-	f    func(CalcResults) ColorResults
-}
-
-func (cf ColorFunc) String() string {
-	return fmt.Sprintf("ColorFunc: %s", cf.desc)
-}
+const (
+	Mandelbrot CalcStyle = iota
+	Julia
+	Attractor
+)
 
 type Calculator func(z, c complex128) complex128
 
@@ -134,11 +123,4 @@ func (cr CalcResults) Max() (max uint) {
 		}
 	}
 	return
-}
-
-var burning_ship = ZFunc{
-	desc: `Burning Ship: z^2 - y + i|x| + c`,
-	f: func(z, c complex128) complex128 {
-		return cmplx.Pow(z, 2.0) + complex(-imag(z), math.Abs(real(z))) + c
-	},
 }

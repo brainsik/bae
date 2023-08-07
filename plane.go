@@ -50,7 +50,7 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 	img := image.NewNRGBA(
 		image.Rectangle{image.Point{0, 0}, image.Point{x_pixels, y_pixels}})
-	draw.Draw(img, img.Bounds(), image.NewUniform(color.Black), image.ZP, draw.Src)
+	draw.Draw(img, img.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 
 	return &Plane{
 		origin: origin,

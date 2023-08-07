@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestMakeProblemSetSinglePointPanic(t *testing.T) {
+func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
 	ap := AttractorParams{
 		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
 		calc_area: PlaneView{complex(-1, -1), complex(1, 1)},
@@ -14,11 +14,11 @@ func TestMakeProblemSetSinglePointPanic(t *testing.T) {
 	}
 
 	defer func() { _ = recover() }()
-	ap.MakeProblemSet() // should panic
-	t.Errorf("Expected MakeProblemSet to panic.")
+	ap.MakePlaneProblemSet() // should panic
+	t.Errorf("Expected MakeAttractorProblemSet to panic.")
 }
 
-func TestMakeProblemSetMultiplePoints(t *testing.T) {
+func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 	ap := AttractorParams{
 		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
 		calc_area: PlaneView{complex(-1, -1), complex(1, 1)},
@@ -40,7 +40,7 @@ func TestMakeProblemSetMultiplePoints(t *testing.T) {
 		{(1 + 0i), ImagePoint{10, 5}},
 		{(1 - 1i), ImagePoint{10, 10}},
 	}
-	result := ap.MakeProblemSet()
+	result := ap.MakePlaneProblemSet()
 	if len(result) != len(expect) {
 		t.Fatalf("len(result) = %d; want %d", len(result), len(expect))
 	}
@@ -69,7 +69,7 @@ func TestMakeProblemSetMultiplePoints(t *testing.T) {
 	}
 }
 
-func TestMakeProblemSetSinglePoint(t *testing.T) {
+func TestMakePlaneProblemSetSinglePoint(t *testing.T) {
 	ap := AttractorParams{
 		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
 		calc_area: PlaneView{complex(-1, -1), complex(-1, -1)},
@@ -79,7 +79,7 @@ func TestMakeProblemSetSinglePoint(t *testing.T) {
 
 	// Get.
 	expect := []CalcPoint{{(-1 - 1i), ImagePoint{0, 10}}}
-	result := ap.MakeProblemSet()
+	result := ap.MakePlaneProblemSet()
 	if len(result) != 1 {
 		t.Fatalf("len(result) = %d; want 1", len(result))
 	}

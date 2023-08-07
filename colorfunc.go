@@ -7,10 +7,51 @@ import (
 	"math/cmplx"
 )
 
+type ColorFunc struct {
+	desc string
+	f    func(CalcResults) ColorResults
+}
+
+func (cf ColorFunc) String() string {
+	return fmt.Sprintf("ColorFunc: %s", cf.desc)
+}
+
 func scale(val uint, max float64) float64 {
 	scaled := math.Min(float64(val), max) / max
 	// Gamma 2.2 correction.
 	return real(cmplx.Pow(complex(scaled, 0), 1.0/2.2))
+}
+
+var escaped_1bit = ColorFunc{
+	desc: `1bit coloring: escaped points are white`,
+	f: func(histogram CalcResults) (coloring ColorResults) {
+		coloring = make(ColorResults)
+		for xy, v := range histogram {
+			if v.escaped {
+				coloring[xy] = color.NRGBA{255, 255, 255, 255}
+			} else {
+				coloring[xy] = color.NRGBA{0, 0, 0, 255}
+			}
+		}
+		return
+	},
+}
+
+var escaped_blue = ColorFunc{
+	desc: `1bit coloring: escaped points are white`,
+	f: func(histogram CalcResults) (coloring ColorResults) {
+		coloring = make(ColorResults)
+		max := float64(histogram.Max())
+		for xy, v := range histogram {
+			if v.escaped {
+				brightness := uint8(255 * scale(v.val, max))
+				coloring[xy] = color.NRGBA{brightness / 4, brightness / 4, brightness, 255}
+			} else {
+				coloring[xy] = color.NRGBA{0, 0, 0, 255}
+			}
+		}
+		return
+	},
 }
 
 var luma = ColorFunc{
