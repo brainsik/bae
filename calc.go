@@ -46,8 +46,9 @@ type ColorResults map[ImagePoint]color.NRGBA
 type CalcParams struct {
 	plane *Plane
 
-	zf ZFunc
-	cf ColorFunc
+	style CalcStyle
+	zf    ZFunc
+	cf    ColorFunc
 
 	c complex128
 
@@ -56,6 +57,10 @@ type CalcParams struct {
 
 	calc_area          PlaneView
 	r_points, i_points int
+}
+
+func (cs CalcStyle) String() string {
+	return CalcStyleName[int(cs)]
 }
 
 func (cp CalcPoint) String() string {
@@ -150,10 +155,10 @@ func (cr CalcResults) Max() (max uint) {
 
 func (cp *CalcParams) String() string {
 	return fmt.Sprintf(
-		"AttractorParams{\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
+		"AttractorParams{\n%v\nStyle: %v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
 			"calc area: %v\n"+
 			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
-		cp.plane, cp.zf, cp.cf, cp.c, cp.iterations, cp.limit, cp.calc_area,
+		cp.plane, cp.style, cp.zf, cp.cf, cp.c, cp.iterations, cp.limit, cp.calc_area,
 		cp.r_points, real(cp.calc_area.min), real(cp.calc_area.max), cp.calc_area.RealLen(),
 		cp.i_points, imag(cp.calc_area.min), imag(cp.calc_area.max), cp.calc_area.ImagLen())
 }
@@ -218,7 +223,7 @@ func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
 	return
 }
 
-func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogram CalcResults) {
+func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	t_start := time.Now()
 	calc_id := fmt.Sprintf("%p", problems)
 	showed_progress := make(map[int]bool)
@@ -232,7 +237,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogra
 
 	for progress, pt := range problems {
 		var z, c complex128
-		if style == Mandelbrot {
+		if cp.style == Mandelbrot {
 			z = complex(0, 0)
 			c = pt.z
 		} else {
@@ -249,7 +254,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogra
 
 			// Escaped?
 			if cmplx.Abs(z) > cp.limit {
-				if style == Attractor {
+				if cp.style == Attractor {
 					histogram.Add(xy, z, 1).escaped = true
 				} else {
 					histogram.Add(pt.xy, pt.z, 1).escaped = true
@@ -261,7 +266,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogra
 
 			// Periodic?
 			if rag[z] {
-				if style == Attractor {
+				if cp.style == Attractor {
 					histogram.Add(xy, z, 1).periodic = true
 				} else {
 					histogram.Add(pt.xy, pt.z, 1).periodic = true
@@ -272,7 +277,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogra
 			}
 			rag[z] = true
 
-			if style == Attractor {
+			if cp.style == Attractor {
 				// Only add to histogram if pixel is in the image plane.
 				if xy.x >= 0 && xy.x <= img_width && xy.y >= 0 && xy.y <= img_height {
 					histogram.Add(xy, z, 1)
@@ -302,13 +307,13 @@ func (cp *CalcParams) Calculate(problems []CalcPoint, style CalcStyle) (histogra
 	return
 }
 
-func (cp *CalcParams) CalculateParallel(concurrency int, style CalcStyle) (histogram CalcResults) {
+func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults) {
 	if concurrency == 0 {
 		concurrency = int(1.5 * float64(runtime.NumCPU()))
 	}
 
 	var problems []CalcPoint
-	if style == Attractor {
+	if cp.style == Attractor {
 		problems = cp.MakePlaneProblemSet()
 	} else {
 		problems = cp.MakeImageProblemSet()
@@ -344,7 +349,7 @@ func (cp *CalcParams) CalculateParallel(concurrency int, style CalcStyle) (histo
 		fmt.Printf("[%v] 🚀 Launch %p | orbits %d - %d\n",
 			time.Now().Format(time.StampMilli), p_chunk, chunk_start, chunk_end)
 		go func() {
-			result_ch <- cp.Calculate(p_chunk, style)
+			result_ch <- cp.Calculate(p_chunk)
 		}()
 	}
 
@@ -362,8 +367,8 @@ func (cp *CalcParams) CalculateParallel(concurrency int, style CalcStyle) (histo
 	return
 }
 
-func (cp *CalcParams) ColorImage(concurrency int, style CalcStyle) {
-	histogram := cp.CalculateParallel(concurrency, style)
+func (cp *CalcParams) ColorImage(concurrency int) {
+	histogram := cp.CalculateParallel(concurrency)
 	histogram.PrintStats()
 
 	colors := cp.cf.f(histogram)

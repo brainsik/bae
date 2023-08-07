@@ -21,7 +21,7 @@ type PlaneView struct {
 }
 
 func (pv PlaneView) String() string {
-	return fmt.Sprintf("%v, %v", pv.min, pv.max)
+	return fmt.Sprintf("%v ↗︎ %v", pv.min, pv.max)
 }
 
 func (pv PlaneView) RealLen() float64 {
@@ -71,8 +71,8 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
-		"Plane{\nOrigin: %v\nView:   %v\nImage size:  %v\nPixel size:  %v\n}",
-		p.origin, p.view, p.ImageSize(), complex(p.r_step, p.i_step))
+		"Plane{\nOrigin: %v\nView:   %v\nImage size:  %v\n}",
+		p.origin, p.view, p.ImageSize())
 }
 
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
