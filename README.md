@@ -8,7 +8,6 @@
 * Add godoc comments to everything
 * Use Log() instead of Printf()?
 * ColorFunc: Add a params type so we can parameterize them.
-* Nuke CalcPoint type? We aren't using the xy component at all … do we need this or can we use a basic type instead of the struct?
 
 ## Plane Mapping
 
