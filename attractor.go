@@ -126,17 +126,17 @@ func (ap *AttractorParams) Calculate(problems []CalcPoint) (histogram CalcResult
 
 		// Show progress.
 		elapsed := time.Since(t_start).Seconds()
-		if int(elapsed+1)%5 == 0 && !showed_progress[int(elapsed)] {
+		if int(elapsed+1)%6 == 0 && !showed_progress[int(elapsed)] {
 			percent := float64(progress) / float64(len(problems))
 			t_remaining := (elapsed / percent) - elapsed
-			fmt.Printf("[%v] ⌚️ %.0fs remaining for %v\n",
-				time.Now().Format(time.StampMilli), t_remaining, calc_id)
+			fmt.Printf("[%v] ⌚️ Workin %v %6.0fs remaining\n",
+				time.Now().Format(time.StampMilli), calc_id, t_remaining)
 			showed_progress[int(elapsed)] = true
 		}
 	}
 	t_total := time.Since(t_start).Seconds()
 	max_its := len(problems) * ap.iterations
-	fmt.Printf("[%v] ✅ Finish %-30s\t%5.2fs (%.0f its/s) %d iterations (%1.f%%) - %d escaped, %d periodic\n",
+	fmt.Printf("[%v] ✅ Finish %s %6.0fs (%.0f its/s) • %d its (%1.f%%) • %d escaped, %d periodic\n",
 		TimestampMilli(), calc_id, t_total,
 		float64(total_its)/t_total, total_its, 100*float64(total_its)/float64(max_its),
 		num_escaped, num_periodic)
@@ -184,8 +184,6 @@ func (ap *AttractorParams) CalculateParallel(concurrency int) (histogram CalcRes
 	histogram = make(CalcResults)
 	chunks_received := 0
 	for r_chunk := range result_ch {
-		fmt.Printf("[%s] Got chunk %d/%d with %d results\n", TimestampMilli(),
-			chunks_received+1, concurrency, len(r_chunk))
 		histogram.Merge(r_chunk)
 		chunks_received++
 		if chunks_received >= concurrency {

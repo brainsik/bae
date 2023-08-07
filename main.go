@@ -10,7 +10,7 @@ const ASPECT = 0.625
 
 func main() {
 	params := &coldwave1_allpts
-	params.ColorImage(0)
+	params.ColorImage(3)
 	params.WritePNG("image.png")
 }
 
@@ -34,7 +34,7 @@ var klein = AttractorParams{
 }
 
 var coldwave1 = AttractorParams{
-	plane: NewPlane(complex(-0.2, -0.15), complex(0.9, 0.9*ASPECT), WIDTH),
+	plane: NewPlane(complex(-0.19, -0.1), complex(0.8, 0.8*ASPECT), WIDTH),
 
 	zf: burning_ship,
 	cf: luma_ceil_6bit,
@@ -48,7 +48,7 @@ var coldwave1 = AttractorParams{
 	limit:      4,
 }
 
-var coldwave1_allpts = coldwave1.NewAllPoints(64, luma_ceil_8bit)
+var coldwave1_allpts = coldwave1.NewAllPoints(16, luma_ceil_8bit)
 
 var coldwave2 = AttractorParams{
 	plane: NewPlane(complex(-0.22, -1.65), complex(4, 4*ASPECT), WIDTH),
