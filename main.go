@@ -22,7 +22,7 @@ var klein = CalcParams{
 	plane: NewPlane(complex(0, -1.5), complex(2.6, 2.6*ASPECT), WIDTH),
 
 	style: Attractor,
-	zf:    ZFuncLib["klein"],
+	zf:    zf_klein,
 	c:     complex(-0.172, -1.136667),
 
 	cf:  cf_luma_clip_percent,
@@ -40,7 +40,7 @@ var coldwave1 = CalcParams{
 	plane: NewPlane(complex(-0.19, -0.1), complex(0.8, 0.8*ASPECT), WIDTH),
 
 	style: Attractor,
-	zf:    ZFuncLib["klein"],
+	zf:    zf_klein,
 	c:     complex(0, 0),
 
 	cf:  cf_luma_clip_value,
@@ -61,7 +61,7 @@ var coldwave2 = CalcParams{
 	plane: NewPlane(complex(-0.22, -1.65), complex(4, 4*ASPECT), WIDTH),
 
 	style: Attractor,
-	zf:    ZFuncLib["klein"],
+	zf:    zf_klein,
 	c:     complex(-0.1278, 0.0),
 
 	cf:  cf_luma_clip_percent,
@@ -79,7 +79,7 @@ var burning_ship = CalcParams{
 	plane: NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT), WIDTH),
 
 	style: Mandelbrot,
-	zf:    ZFuncLib["burning ship"],
+	zf:    zf_burning_ship,
 
 	cf:  cf_escaped_clip_percent,
 	cfp: ColorFuncParams{clip: 20},
@@ -92,7 +92,7 @@ var julia_classic = CalcParams{
 	plane: NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
 
 	style: Julia,
-	zf:    ZFuncLib["mandelbrot"],
+	zf:    zf_mandelbrot,
 	c:     complex(0.285, 0.01),
 
 	cf:  cf_escaped_clip_percent,
