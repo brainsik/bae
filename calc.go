@@ -59,10 +59,10 @@ func (cp CalcPoint) String() string {
 
 func (cp *CalcParams) String() string {
 	return fmt.Sprintf(
-		"AttractorParams{\n%v\nStyle: %v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
+		"CalcParams{\n%v\nStyle: %v\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
 			"calc area: %v\n"+
 			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
-		cp.plane, cp.style, cp.zf, cp.cf, cp.c, cp.iterations, cp.limit, cp.calc_area,
+		cp.plane, cp.style, cp.zf, cp.cf, cp.cfp, cp.c, cp.iterations, cp.limit, cp.calc_area,
 		cp.r_points, real(cp.calc_area.min), real(cp.calc_area.max), cp.calc_area.RealLen(),
 		cp.i_points, imag(cp.calc_area.min), imag(cp.calc_area.max), cp.calc_area.ImagLen())
 }
