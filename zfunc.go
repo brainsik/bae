@@ -29,6 +29,13 @@ var zf_klein = ZFunc{
 	},
 }
 
+var zf_klein2 = ZFunc{
+	desc: `Klein :: z^2 - y + i|x| + c`,
+	f: func(z, c complex128) complex128 {
+		return cmplx.Pow(z, 2.0) + complex(math.Abs(imag(z)), real(z)) + c
+	},
+}
+
 var zf_mandelbrot = ZFunc{
 	desc: `Mandelbrot :: z^2 + c`,
 	f: func(z, c complex128) complex128 {

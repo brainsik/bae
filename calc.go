@@ -78,14 +78,14 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 		cfp:        cfp,
 		iterations: iterations,
 		calc_area:  cp.plane.view,
+		r_points:   cp.plane.ImageSize().width,
+		i_points:   cp.plane.ImageSize().height,
 
 		// unchanged
-		plane:    cp.plane,
-		zf:       cp.zf,
-		c:        cp.c,
-		limit:    cp.limit,
-		r_points: cp.plane.ImageSize().width,
-		i_points: cp.plane.ImageSize().height,
+		plane: cp.plane,
+		zf:    cp.zf,
+		c:     cp.c,
+		limit: cp.limit,
 	}
 }
 

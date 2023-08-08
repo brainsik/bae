@@ -9,7 +9,7 @@ const WIDTH = 1920
 const ASPECT = 0.625
 
 func main() {
-	params := &klein
+	params := &klein2_allpts
 	params.ColorImage(6)
 	params.WritePNG("image.png")
 }
@@ -35,6 +35,16 @@ var klein = CalcParams{
 	iterations: int(math.Pow(2, 23)),
 	limit:      4,
 }
+
+var klein2_allpts = CalcParams{
+	plane: NewPlane(complex(-0.2, -1.8), complex(2.2, 2.2*ASPECT), WIDTH),
+
+	style: Attractor,
+	zf:    zf_klein2,
+	c:     complex(-0.172, -1.136667),
+
+	limit: 4,
+}.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{clip: 8, gamma: 2.0})
 
 var coldwave1 = CalcParams{
 	plane: NewPlane(complex(-0.19, -0.1), complex(0.8, 0.8*ASPECT), WIDTH),
