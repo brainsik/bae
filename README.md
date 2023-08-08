@@ -5,7 +5,6 @@
 * ?? Instead of PlanePoint and ImagePoint, move to CmplxPoint and ImagePoint and rename other things accordingly?
 * Add godoc comments to everything
 * Use Log() instead of Printf()?
-* ColorFunc: Add a params type so we can parameterize them.
 
 ## Plane Mapping
 

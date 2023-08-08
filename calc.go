@@ -37,9 +37,10 @@ type CalcParams struct {
 
 	style CalcStyle
 	zf    ZFunc
-	cf    ColorFunc
+	c     complex128
 
-	c complex128
+	cf  ColorFunc
+	cfp ColorFuncParams
 
 	iterations int
 	limit      float64
@@ -66,7 +67,7 @@ func (cp *CalcParams) String() string {
 		cp.i_points, imag(cp.calc_area.min), imag(cp.calc_area.max), cp.calc_area.ImagLen())
 }
 
-func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc) CalcParams {
+func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncParams) CalcParams {
 	if iterations <= 0 {
 		iterations = cp.iterations
 	}
@@ -74,6 +75,7 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc) CalcParams {
 	return CalcParams{
 		// modified
 		cf:         cf,
+		cfp:        cfp,
 		iterations: iterations,
 		calc_area:  cp.plane.view,
 
@@ -274,7 +276,7 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	histogram := cp.CalculateParallel(concurrency)
 	histogram.PrintStats()
 
-	colors := cp.cf.f(histogram)
+	colors := cp.cf.f(histogram, cp.cfp)
 	for pt, rgba := range colors {
 		cp.plane.image.Set(pt.x, pt.y, rgba)
 	}

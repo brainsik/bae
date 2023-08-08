@@ -9,208 +9,97 @@ import (
 
 type ColorFunc struct {
 	desc string
-	f    func(CalcResults) ColorResults
+	f    func(CalcResults, ColorFuncParams) ColorResults
+}
+
+type ColorFuncParams struct {
+	clip, gamma float64
+	showclip    bool
 }
 
 func (cf ColorFunc) String() string {
 	return fmt.Sprintf("ColorFunc: %s", cf.desc)
 }
 
-func scale(val uint, max float64) float64 {
-	scaled := math.Min(float64(val), max) / max
-	// Gamma 2.2 correction.
-	return real(cmplx.Pow(complex(scaled, 0), 1.0/2.2))
+func (cfp ColorFuncParams) String() string {
+	return fmt.Sprintf("ColorFuncParams{gamma:%f, clip:%f}", cfp.gamma, cfp.clip)
 }
 
-var escaped_1bit = ColorFunc{
-	desc: `1bit coloring: escaped points are white`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
+func GammaScale(val, max, gamma float64) float64 {
+	if gamma <= 0 {
+		gamma = 2.2 // default
+	}
+
+	scaled := complex(math.Min(val, max)/max, 0)
+	gamma_correction := complex(1.0/gamma, 0)
+	return real(cmplx.Pow(scaled, gamma_correction))
+}
+
+var cf_luma_clip_percent = ColorFunc{
+	desc: `Brightness clips at given percent of max`,
+	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+		coloring := make(ColorResults)
+		max := (params.clip / 100) * float64(histogram.Max())
 		for xy, v := range histogram {
-			if v.escaped {
-				coloring[xy] = color.NRGBA{255, 255, 255, 255}
+			val := float64(v.val)
+			if params.showclip && val >= max+1 {
+				coloring[xy] = color.NRGBA{0xff, 0xd4, 0x79, 0xff}
 			} else {
-				coloring[xy] = color.NRGBA{0, 0, 0, 255}
+				brightness := uint8(255 * GammaScale(val, max, params.gamma))
+				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 0xff}
 			}
 		}
-		return
+		return coloring
 	},
 }
 
-var escaped_blue = ColorFunc{
-	desc: `1bit coloring: escaped points are white`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := float64(histogram.Max())
+var cf_luma_clip_value = ColorFunc{
+	desc: `Brightness clips at given value`,
+	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+		coloring := make(ColorResults)
+		max := params.clip
+		for xy, v := range histogram {
+			val := float64(v.val)
+			if params.showclip && val >= max+1 {
+				coloring[xy] = color.NRGBA{0xff, 0xd4, 0x79, 0xff}
+			} else {
+				brightness := uint8(255 * GammaScale(val, max, params.gamma))
+				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 0xff}
+			}
+		}
+		return coloring
+	},
+}
+
+var cf_escaped_1bit = ColorFunc{
+	desc: `Escaped points are white (1bit color)`,
+	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+		coloring := make(ColorResults)
 		for xy, v := range histogram {
 			if v.escaped {
-				brightness := uint8(255 * scale(v.val, max))
+				coloring[xy] = color.NRGBA{0xff, 0xff, 0xff, 0xff}
+			} else {
+				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
+			}
+		}
+		return coloring
+	},
+}
+
+var cf_escaped_clip_percent = ColorFunc{
+	desc: `Blue brightness depends on number of iterations to escape`,
+	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+		coloring := make(ColorResults)
+		max := (params.clip / 100) * float64(histogram.Max())
+		for xy, v := range histogram {
+			val := float64(v.val)
+			if v.escaped {
+				brightness := uint8(255 * GammaScale(val, max, params.gamma))
 				coloring[xy] = color.NRGBA{brightness / 4, brightness / 4, brightness, 255}
 			} else {
-				coloring[xy] = color.NRGBA{0, 0, 0, 255}
+				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
 			}
 		}
-		return
-	},
-}
-
-var luma = ColorFunc{
-	desc: `Gamma corrected brightness`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := float64(histogram.Max())
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_12bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 1023`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, 4095))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_10bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 1023`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, 1023))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_10bit_showclip = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 1023 and shown`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		for xy, v := range histogram {
-			if v.val >= 1024 {
-				coloring[xy] = color.NRGBA{0xFF, 0xD4, 0x79, 255}
-			} else {
-				brightness := uint8(255 * scale(v.val, 1023))
-				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-			}
-		}
-		return
-	},
-}
-
-var luma_ceil_8bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 255`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, 255))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_6bit = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 63`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, 63))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_80pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 80% of max`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := 0.80 * float64(histogram.Max())
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_40pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 40% of max`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := 0.40 * float64(histogram.Max())
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_20pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 20% of max`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := 0.20 * float64(histogram.Max())
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_10pct = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at 10% of max`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := 0.1 * float64(histogram.Max())
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_sqrt = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at sqrt(max)`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := math.Sqrt(float64(histogram.Max()))
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
-	},
-}
-
-var luma_ceil_log = ColorFunc{
-	desc: `Gamma corrected brightness with original values clipped at log(max)`,
-	f: func(histogram CalcResults) (coloring ColorResults) {
-		coloring = make(ColorResults)
-		max := math.Log(float64(histogram.Max()))
-		fmt.Printf("Scaled max: %.1f\n", max)
-		for xy, v := range histogram {
-			brightness := uint8(255 * scale(v.val, max))
-			coloring[xy] = color.NRGBA{brightness, brightness, brightness, 255}
-		}
-		return
+		return coloring
 	},
 }
