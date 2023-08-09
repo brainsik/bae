@@ -1,10 +1,10 @@
 ## ToDo
 
-* BUG: WTF is going on with ap.calc_area?? Something is not right. Changing the size of the plane seems change where you're oriented in it. This is perhaps a problem with MakeProblemSet because adding a separate MakeProblemSet for Juliabrots (where we iterate over the image plane instead of the complex plane to make the problem set) makes the issue go away. Something is up.
-* If we fix this bug ☝️ then we _may_ be able to drop the two MakeProblemSet functions and have just one. I say may because the z <-> xy mapping is not 1:1 and separating problem set creators by whether they are based on the complex plane or the image plane is maybe just correct.
+* Add godoc comments
+* Update structs to properly use public/private (uppercase/lowercase) field names.
+* ?? Use a single MakeProblemSet function? Since the z <-> xy mapping is not 1:1, having separate problem set creators based on whether we are building on the complex plane or the image plane might be best, even though it's more code.
 * ?? Instead of PlanePoint and ImagePoint, move to CmplxPoint and ImagePoint and rename other things accordingly?
-* Add godoc comments to everything
-* Use Log() instead of Printf()?
+* ?? Instead of Printf(), use Log()?
 
 ## Plane Mapping
 

@@ -36,10 +36,7 @@ func (pv PlaneView) ImagLen() float64 {
 }
 
 func NewPlane(origin, size complex128, x_pixels int) *Plane {
-	view := PlaneView{
-		complex(real(origin)-real(size)/2.0, imag(origin)-imag(size)/2.0),
-		complex(real(origin)+real(size)/2.0, imag(origin)+imag(size)/2.0)}
-
+	view := PlaneView{origin - size/2, origin + size/2}
 	_aspect_ratio := imag(size) / real(size)
 	y_pixels := int(float64(x_pixels) * _aspect_ratio)
 
@@ -74,16 +71,16 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
-		"Plane{\nOrigin: %v\nView:   %v\nImage size:  %v\n}",
+		"Plane{Origin:%v, View:%v, ImageSize:%v}",
 		p.origin, p.view, p.ImageSize())
 }
 
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 	if px.x < 0 || px.x > p.ImageSize().width {
-		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside %v image bounds\n", px, p.ImageSize())
+		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageSize().width)
 	}
 	if px.y < 0 || px.y > p.ImageSize().height {
-		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside %v image bounds\n", px, p.ImageSize())
+		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageSize().height)
 	}
 
 	r := real(p.view.min) + float64(px.x)*p.r_step
@@ -101,13 +98,23 @@ func (ip ImagePoint) String() string {
 }
 
 func (p *Plane) ImagePoint(z complex128) ImagePoint {
-	// reorient view so min is (0, 0)
+	// rz_min, rz_max := real(p.view.min), real(p.view.max)
+	// if real(z) < rz_min || real(z) > rz_max {
+	// 	fmt.Printf("Warning: ImagePoint(%v) real value is outside plane bounds: %v -> %v\n", z, rz_min, rz_max)
+	// }
+
+	// iz_min, iz_max := imag(p.view.min), imag(p.view.max)
+	// if imag(z) < iz_min || imag(z) > iz_max {
+	// 	fmt.Printf("Warning: ImagePoint(%v) imag value is outside plane bounds: %v -> %v\n", z, iz_min, iz_max)
+	// }
+
+	// reorient view so min is complex(0,0)
 	z_adj := z - p.view.min
 
 	x := int(math.Round(real(z_adj) * p.x_step))
 	y := int(math.Round(imag(z_adj) * p.y_step))
 	// Flip y, it increases in the opposite direction as i.
-	y = p.ImageSize().width - y
+	y = p.ImageSize().height - y
 
 	return ImagePoint{x, y}
 }

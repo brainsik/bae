@@ -9,9 +9,9 @@ const WIDTH = 1920
 const ASPECT = 0.625
 
 func main() {
-	params := &klein2_allpts
-	params.ColorImage(6)
-	params.WritePNG("image.png")
+	params := &coldwave2
+	params.ColorImage(3)
+	params.plane.WritePNG("image.png")
 }
 
 func TimestampMilli() string {
@@ -19,7 +19,7 @@ func TimestampMilli() string {
 }
 
 var klein = CalcParams{
-	plane: NewPlane(complex(0, -1.5), complex(2.6, 2.6*ASPECT), WIDTH),
+	plane: NewPlane(complex(-0.1, -0.54), complex(2.6, 2.6*ASPECT), WIDTH),
 
 	style: Attractor,
 	zf:    zf_klein,
@@ -37,7 +37,7 @@ var klein = CalcParams{
 }
 
 var klein2_allpts = CalcParams{
-	plane: NewPlane(complex(-0.2, -1.8), complex(2.2, 2.2*ASPECT), WIDTH),
+	plane: NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT), WIDTH),
 
 	style: Attractor,
 	zf:    zf_klein2,
@@ -47,7 +47,7 @@ var klein2_allpts = CalcParams{
 }.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{clip: 8, gamma: 2.0})
 
 var coldwave1 = CalcParams{
-	plane: NewPlane(complex(-0.19, -0.1), complex(0.8, 0.8*ASPECT), WIDTH),
+	plane: NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT), WIDTH),
 
 	style: Attractor,
 	zf:    zf_klein,
@@ -68,7 +68,7 @@ var coldwave1_allpts = coldwave1.NewAllPoints(
 	16, cf_luma_clip_value, ColorFuncParams{clip: math.Pow(2, 8)})
 
 var coldwave2 = CalcParams{
-	plane: NewPlane(complex(-0.22, -1.65), complex(4, 4*ASPECT), WIDTH),
+	plane: NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT), WIDTH),
 
 	style: Attractor,
 	zf:    zf_klein,
@@ -106,7 +106,7 @@ var julia_classic = CalcParams{
 	c:     complex(0.285, 0.01),
 
 	cf:  cf_escaped_clip_percent,
-	cfp: ColorFuncParams{clip: 45},
+	cfp: ColorFuncParams{clip: 50, gamma: 2.8},
 
 	iterations: 493,
 	limit:      4,

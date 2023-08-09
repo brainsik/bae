@@ -19,10 +19,13 @@ func TestImageSize(t *testing.T) {
 }
 
 func TestPlanePoint(t *testing.T) {
-	origin := complex(-2, 2)
-	size := complex(4, 4)
-	x_pixels, y_pixels := 128, 128
+	origin := complex(-1, 1)
+	size := complex(1, 2)
+	x_pixels := 128
 	p := NewPlane(origin, size, x_pixels)
+
+	aspect := imag(size) / real(size)
+	y_pixels := int(float64(x_pixels) * aspect)
 
 	testCases := []struct {
 		name   string
@@ -30,12 +33,40 @@ func TestPlanePoint(t *testing.T) {
 		expect complex128
 	}{
 		{"xy-center", ImagePoint{x_pixels / 2, y_pixels / 2}, origin},
-		{"xy-left-top", ImagePoint{0, 0}, complex(-4, 4)},
-		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}, complex(0, 0)},
+		{"xy-left-top", ImagePoint{0, 0}, complex(-1.5, 2)},
+		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}, complex(-0.5, 0)},
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
 			result := p.PlanePoint(tc.point)
+			if result != tc.expect {
+				t.Error(result, tc.expect)
+			}
+		})
+	}
+}
+
+func TestImagePoint(t *testing.T) {
+	origin := complex(-1, 1)
+	size := complex(2, 1)
+	x_pixels := 100
+	p := NewPlane(origin, size, x_pixels)
+
+	aspect := imag(size) / real(size)
+	y_pixels := int(float64(x_pixels) * aspect)
+
+	testCases := []struct {
+		name   string
+		point  complex128
+		expect ImagePoint
+	}{
+		{"z-center", origin, ImagePoint{x_pixels / 2, y_pixels / 2}},
+		{"z-left-top", complex(-2, 1.5), ImagePoint{0, 0}},
+		{"z-right-bottom", complex(0, 0.5), ImagePoint{x_pixels, y_pixels}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+			result := p.ImagePoint(tc.point)
 			if result != tc.expect {
 				t.Error(result, tc.expect)
 			}
@@ -64,31 +95,6 @@ func TestImageToPlaneToImagePoint(t *testing.T) {
 			result := p.ImagePoint(z)
 			if result != tc.point {
 				t.Error(result, tc.point)
-			}
-		})
-	}
-}
-
-func TestImagePoint(t *testing.T) {
-	origin := complex(-2, 2)
-	size := complex(4, 4)
-	x_pixels, y_pixels := 128, 128
-	p := NewPlane(origin, size, x_pixels)
-
-	testCases := []struct {
-		name   string
-		point  complex128
-		expect ImagePoint
-	}{
-		{"z-center", origin, ImagePoint{x_pixels / 2, y_pixels / 2}},
-		{"z-left-top", complex(-4, 4), ImagePoint{0, 0}},
-		{"z-right-bottom", complex(0, 0), ImagePoint{x_pixels, y_pixels}},
-	}
-	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
-			result := p.ImagePoint(tc.point)
-			if result != tc.expect {
-				t.Error(result, tc.expect)
 			}
 		})
 	}
