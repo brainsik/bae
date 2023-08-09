@@ -12,7 +12,7 @@ type Plane struct {
 	origin, size   complex128
 	view           PlaneView
 	r_step, i_step float64
-	x_step, y_step int
+	x_step, y_step float64
 	image          *image.NRGBA
 }
 
@@ -45,8 +45,8 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	i_step := imag(size) / float64(y_pixels)
 
 	// Pixels per point.
-	x_step := int(float64(x_pixels) / real(size))
-	y_step := int(float64(y_pixels) / imag(size))
+	x_step := float64(x_pixels) / real(size)
+	y_step := float64(y_pixels) / imag(size)
 
 	img := image.NewNRGBA(
 		image.Rectangle{image.Point{0, 0}, image.Point{x_pixels, y_pixels}})
@@ -76,6 +76,13 @@ func (p *Plane) String() string {
 }
 
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
+	if px.x < 0 || px.x > p.ImageSize().width {
+		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside %v image bounds\n", px, p.ImageSize())
+	}
+	if px.y < 0 || px.y > p.ImageSize().height {
+		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside %v image bounds\n", px, p.ImageSize())
+	}
+
 	r := real(p.view.min) + float64(px.x)*p.r_step
 	// i on the complex plane and y on the pixel plane increase in opposite directions
 	i := imag(p.view.max) - float64(px.y)*p.i_step
@@ -94,8 +101,8 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	// reorient view so min is (0, 0)
 	z_adj := z - p.view.min
 
-	x := int(real(z_adj) * float64(p.x_step))
-	y := int(imag(z_adj) * float64(p.y_step))
+	x := int(real(z_adj) * p.x_step)
+	y := int(imag(z_adj) * p.y_step)
 	// Flip y, it increases in the opposite direction as i.
 	y = p.ImageSize().width - y
 

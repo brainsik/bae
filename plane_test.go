@@ -43,6 +43,31 @@ func TestPlanePoint(t *testing.T) {
 	}
 }
 
+func TestImageToPlaneToImagePoint(t *testing.T) {
+	origin := complex(-2, 2)
+	size := complex(3, 3) // odd size so things don't divide cleanly
+	x_pixels, y_pixels := 128, 128
+	p := NewPlane(origin, size, x_pixels)
+
+	testCases := []struct {
+		name  string
+		point ImagePoint
+	}{
+		{"xy-center", ImagePoint{x_pixels / 2, y_pixels / 2}},
+		{"xy-left-top", ImagePoint{0, 0}},
+		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+			z := p.PlanePoint(tc.point)
+			result := p.ImagePoint(z)
+			if result != tc.point {
+				t.Error(result, tc.point)
+			}
+		})
+	}
+}
+
 func TestImagePoint(t *testing.T) {
 	origin := complex(-2, 2)
 	size := complex(4, 4)
