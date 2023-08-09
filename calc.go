@@ -3,10 +3,8 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"image/png"
 	"math/cmplx"
 	"math/rand"
-	"os"
 	"runtime"
 	"time"
 )
@@ -280,12 +278,4 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	for pt, rgba := range colors {
 		cp.plane.image.Set(pt.x, pt.y, rgba)
 	}
-}
-
-func (cp *CalcParams) WritePNG(filename string) {
-	png_file, _ := os.Create(filename)
-	penc := png.Encoder{CompressionLevel: png.BestCompression}
-	penc.Encode(png_file, cp.plane.image)
-	fmt.Printf("Wrote %s\n", png_file.Name())
-	png_file.Close()
 }

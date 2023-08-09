@@ -6,6 +6,8 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"image/png"
+	"os"
 )
 
 type Plane struct {
@@ -124,6 +126,14 @@ func (is ImageSize) String() string {
 
 func (p *Plane) ImageSize() ImageSize {
 	return ImageSize{p.image.Rect.Dx(), p.image.Rect.Dy()}
+}
+
+func (p *Plane) WritePNG(filename string) {
+	png_file, _ := os.Create(filename)
+	penc := png.Encoder{CompressionLevel: png.BestCompression}
+	penc.Encode(png_file, p.image)
+	fmt.Printf("Wrote %s\n", png_file.Name())
+	png_file.Close()
 }
 
 type planeJSON struct {
