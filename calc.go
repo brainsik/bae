@@ -134,6 +134,9 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	img_width := cp.plane.ImageSize().width
 	img_height := cp.plane.ImageSize().height
 
+	// rz_min, rz_max := real(cp.plane.view.min), real(cp.plane.view.max)
+	// iz_min, iz_max := imag(cp.plane.view.min), imag(cp.plane.view.max)
+
 	var total_its, num_escaped, num_periodic uint
 	histogram = make(CalcResults)
 	f_zc := cp.zf.f
@@ -154,6 +157,9 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 
 			z = f_zc(z, c)
 			xy := cp.plane.ImagePoint(z)
+			// if real(z) < rz_min || real(z) > rz_max || imag(z) < iz_min || imag(z) > iz_max {
+			// 	continue
+			// }
 
 			// Escaped?
 			if cmplx.Abs(z) > cp.limit {
@@ -274,8 +280,10 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	histogram := cp.CalculateParallel(concurrency)
 	histogram.PrintStats()
 
+	t_start := time.Now()
 	colors := cp.cf.f(histogram, cp.cfp)
 	for pt, rgba := range colors {
 		cp.plane.image.Set(pt.x, pt.y, rgba)
 	}
+	fmt.Printf("Image processing took %dms\n", time.Since(t_start).Milliseconds())
 }
