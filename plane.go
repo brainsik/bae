@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 	"os"
 )
 
@@ -103,8 +104,8 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	// reorient view so min is (0, 0)
 	z_adj := z - p.view.min
 
-	x := int(real(z_adj) * p.x_step)
-	y := int(imag(z_adj) * p.y_step)
+	x := int(math.Round(real(z_adj) * p.x_step))
+	y := int(math.Round(imag(z_adj) * p.y_step))
 	// Flip y, it increases in the opposite direction as i.
 	y = p.ImageSize().width - y
 

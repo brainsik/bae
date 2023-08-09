@@ -44,9 +44,10 @@ func TestPlanePoint(t *testing.T) {
 }
 
 func TestImageToPlaneToImagePoint(t *testing.T) {
-	origin := complex(-2, 2)
-	size := complex(3, 3) // odd size so things don't divide cleanly
-	x_pixels, y_pixels := 128, 128
+	origin := complex(0, 0)
+	// Use numbers that ensure points to pixel ratio does not divide cleanly
+	size := complex(1.59, 1.59)
+	x_pixels, y_pixels := 127, 127
 	p := NewPlane(origin, size, x_pixels)
 
 	testCases := []struct {
