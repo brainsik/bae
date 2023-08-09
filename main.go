@@ -5,8 +5,10 @@ import (
 	"time"
 )
 
-const WIDTH = 1920
-const ASPECT = 0.625
+const (
+	WIDTH  = 1920
+	ASPECT = 0.625
+)
 
 func main() {
 	params := &coldwave2
