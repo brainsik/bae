@@ -139,7 +139,9 @@ func (p *Plane) ImageSize() ImageSize {
 func (p *Plane) WritePNG(filename string) {
 	png_file, _ := os.Create(filename)
 	penc := png.Encoder{CompressionLevel: png.BestCompression}
-	penc.Encode(png_file, p.image)
+	if err := penc.Encode(png_file, p.image); err != nil {
+		fmt.Printf("Error encoding PNG: %v\n", err)
+	}
 	fmt.Printf("Wrote %s\n", png_file.Name())
 	png_file.Close()
 }

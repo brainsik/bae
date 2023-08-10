@@ -53,7 +53,7 @@ var cf_luma_clip_percent = ColorFunc{
 	},
 }
 
-var cf_luma_clip_value = ColorFunc{
+var cf_luma_clip_value = ColorFunc{ //nolint:unused
 	desc: `Brightness clips at given value`,
 	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
@@ -71,7 +71,7 @@ var cf_luma_clip_value = ColorFunc{
 	},
 }
 
-var cf_escaped_1bit = ColorFunc{
+var cf_escaped_1bit = ColorFunc{ //nolint:unused
 	desc: `Escaped points are white (1bit color)`,
 	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
@@ -86,7 +86,7 @@ var cf_escaped_1bit = ColorFunc{
 	},
 }
 
-var cf_escaped_clip_percent = ColorFunc{
+var cf_escaped_clip_percent = ColorFunc{ //nolint:unused
 	desc: `Blue brightness depends on number of iterations to escape`,
 	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)

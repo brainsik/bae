@@ -20,7 +20,7 @@ func TimestampMilli() string {
 	return time.Now().Format(time.StampMilli)
 }
 
-var klein = CalcParams{
+var klein = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(-0.1, -0.54), complex(2.6, 2.6*ASPECT), WIDTH),
 
 	style: Attractor,
@@ -38,7 +38,7 @@ var klein = CalcParams{
 	limit:      4,
 }
 
-var klein2_allpts = CalcParams{
+var klein2_allpts = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT), WIDTH),
 
 	style: Attractor,
@@ -48,7 +48,7 @@ var klein2_allpts = CalcParams{
 	limit: 4,
 }.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{clip: 8, gamma: 2.0})
 
-var coldwave1 = CalcParams{
+var coldwave1 = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT), WIDTH),
 
 	style: Attractor,
@@ -66,10 +66,10 @@ var coldwave1 = CalcParams{
 	limit:      4,
 }
 
-var coldwave1_allpts = coldwave1.NewAllPoints(
+var coldwave1_allpts = coldwave1.NewAllPoints( //nolint:unused
 	16, cf_luma_clip_value, ColorFuncParams{clip: math.Pow(2, 8)})
 
-var coldwave2 = CalcParams{
+var coldwave2 = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT), WIDTH),
 
 	style: Attractor,
@@ -87,7 +87,7 @@ var coldwave2 = CalcParams{
 	limit:      4,
 }
 
-var burning_ship = CalcParams{
+var burning_ship = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT), WIDTH),
 
 	style: Mandelbrot,
@@ -100,7 +100,7 @@ var burning_ship = CalcParams{
 	limit:      4,
 }
 
-var julia_classic = CalcParams{
+var julia_classic = CalcParams{ //nolint:unused
 	plane: NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
 
 	style: Julia,

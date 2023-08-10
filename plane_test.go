@@ -37,7 +37,7 @@ func TestPlanePoint(t *testing.T) {
 		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}, complex(-0.5, 0)},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
 			result := p.PlanePoint(tc.point)
 			if result != tc.expect {
 				t.Error(result, tc.expect)
@@ -65,7 +65,7 @@ func TestImagePoint(t *testing.T) {
 		{"z-right-bottom", complex(0, 0.5), ImagePoint{x_pixels, y_pixels}},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
 			result := p.ImagePoint(tc.point)
 			if result != tc.expect {
 				t.Error(result, tc.expect)
@@ -90,7 +90,7 @@ func TestImageToPlaneToImagePoint(t *testing.T) {
 		{"xy-right-bottom", ImagePoint{x_pixels, y_pixels}},
 	}
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
 			z := p.PlanePoint(tc.point)
 			result := p.ImagePoint(z)
 			if result != tc.point {
