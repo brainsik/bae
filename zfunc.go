@@ -6,6 +6,7 @@ import (
 	"math/cmplx"
 )
 
+// ZFunc represents the math function f(z, c).
 type ZFunc struct {
 	desc string
 	f    func(z, c complex128) complex128

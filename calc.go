@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// CalcStyle is an enum representing the type of calculation that will be performed.
 type CalcStyle int
 
 const (
@@ -23,13 +24,16 @@ var CalcStyleName = map[int]string{
 	int(Mandelbrot): "Mandelbrot",
 }
 
+// CalcPoint is the mapping between coordinate types.
 type CalcPoint struct {
 	z  complex128
 	xy ImagePoint
 }
 
+// ColorResults maps image plane coordinates to a color.
 type ColorResults map[ImagePoint]color.NRGBA
 
+// CalcParams contains all the parameters needed to generate an image.
 type CalcParams struct {
 	plane *Plane
 
@@ -65,6 +69,9 @@ func (cp *CalcParams) String() string {
 		cp.i_points, imag(cp.calc_area.min), imag(cp.calc_area.max), cp.calc_area.ImagLen())
 }
 
+// NewAllPoints is a helper function that sets the calculation area of the
+// CalcParams to the entire plane where the orbit of every point in the image
+// is calculated.
 func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncParams) CalcParams {
 	if iterations <= 0 {
 		iterations = cp.iterations
@@ -87,6 +94,7 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 	}
 }
 
+// MakePlaneProblemSet returns a problem set for an even distribution of points in the calc_area.
 func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 	// TODO: Return an Error instead?
 	if cp.calc_area.RealLen() > 0 && cp.r_points <= 1 {
@@ -115,6 +123,7 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 	return
 }
 
+// MakeImageProblemSet returns a problem set representing every point in the image plane.
 func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
 	for x := 0; x < cp.plane.ImageSize().width; x++ {
 		for y := 0; y < cp.plane.ImageSize().height; y++ {
@@ -126,6 +135,7 @@ func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
 	return
 }
 
+// Calculate does the actual calculations for each point in the problem set.
 func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	t_start := time.Now()
 	calc_id := fmt.Sprintf("%p", problems)
@@ -216,6 +226,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	return
 }
 
+// CalculateParallel breaks the problem set into chunks and runs conncurrent Calculate routines.
 func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults) {
 	if concurrency == 0 {
 		concurrency = int(1.5 * float64(runtime.NumCPU()))
@@ -276,6 +287,7 @@ func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults)
 	return
 }
 
+// ColorImage sets image colors based on the results from Calculate.
 func (cp *CalcParams) ColorImage(concurrency int) {
 	histogram := cp.CalculateParallel(concurrency)
 	histogram.PrintStats()

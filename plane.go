@@ -11,6 +11,7 @@ import (
 	"os"
 )
 
+// Plane represents an area in the complex plane and it's corresponding graphical image.
 type Plane struct {
 	origin, size   complex128
 	view           PlaneView
@@ -19,6 +20,7 @@ type Plane struct {
 	image          *image.NRGBA
 }
 
+// PlaneView represents a rectangle in the complex plane. Min is the left-bottom point and max is the right-top point.
 type PlaneView struct {
 	min, max complex128
 }
@@ -27,14 +29,17 @@ func (pv PlaneView) String() string {
 	return fmt.Sprintf("%v ↗︎ %v", pv.min, pv.max)
 }
 
+// RealLen returns the real axis length.
 func (pv PlaneView) RealLen() float64 {
 	return real(pv.max) - real(pv.min)
 }
 
+// ImagLen returns the imaginary axis length.
 func (pv PlaneView) ImagLen() float64 {
 	return imag(pv.max) - imag(pv.min)
 }
 
+// NewPlane returns a new Plane.
 func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	view := PlaneView{origin - size/2, origin + size/2}
 	_aspect_ratio := imag(size) / real(size)
@@ -75,6 +80,7 @@ func (p *Plane) String() string {
 		p.origin, p.view, p.ImageSize())
 }
 
+// PlanePoint returns the point in the complex plane corresponding to the given point in the image plane.
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 	if px.x < 0 || px.x > p.ImageSize().width {
 		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageSize().width)
@@ -89,6 +95,7 @@ func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 	return complex(r, i)
 }
 
+// ImagePoint represents coordinates in the image plane.
 type ImagePoint struct {
 	x, y int
 }
@@ -97,6 +104,7 @@ func (ip ImagePoint) String() string {
 	return fmt.Sprintf("(%v, %v)", ip.x, ip.y)
 }
 
+// PlanePoint returns the point in the image plane corresponding to the given point in the complex plane.
 func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	// rz_min, rz_max := real(p.view.min), real(p.view.max)
 	// if real(z) < rz_min || real(z) > rz_max {
@@ -119,11 +127,13 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	return ImagePoint{x, y}
 }
 
+// Set sets the color in the image plane corresponding to the given complex plane point.
 func (p *Plane) Set(z complex128, rgba color.NRGBA) {
 	xy := p.ImagePoint(z)
 	p.image.Set(xy.x, xy.y, rgba)
 }
 
+// ImageSize represents the image width and height.
 type ImageSize struct {
 	width, height int
 }
@@ -132,12 +142,14 @@ func (is ImageSize) String() string {
 	return fmt.Sprintf("%vx%v", is.width, is.height)
 }
 
+// ImageSize returns the image size.
 func (p *Plane) ImageSize() ImageSize {
 	return ImageSize{p.image.Rect.Dx(), p.image.Rect.Dy()}
 }
 
-func (p *Plane) WritePNG(filename string) {
-	png_file, _ := os.Create(filename)
+// WritePNG outputs a PNG file at the given path.
+func (p *Plane) WritePNG(path string) {
+	png_file, _ := os.Create(path)
 	penc := png.Encoder{CompressionLevel: png.BestCompression}
 	if err := penc.Encode(png_file, p.image); err != nil {
 		fmt.Printf("Error encoding PNG: %v\n", err)
@@ -146,6 +158,7 @@ func (p *Plane) WritePNG(filename string) {
 	png_file.Close()
 }
 
+// planeJSON is the JSON representation of a Plane.
 type planeJSON struct {
 	Origin    [2]float64 `json:"origin"`
 	Size      [2]float64 `json:"size"`

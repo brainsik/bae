@@ -7,11 +7,13 @@ import (
 	"math/cmplx"
 )
 
+// ColorFunc represents the alorithm used to determine the color of pixel in the image.
 type ColorFunc struct {
 	desc string
 	f    func(CalcResults, ColorFuncParams) ColorResults
 }
 
+// ColorFuncParams contains paramenters needed by a ColorFunc algorithm.
 type ColorFuncParams struct {
 	clip, gamma float64
 	showclip    bool
@@ -25,6 +27,7 @@ func (cfp ColorFuncParams) String() string {
 	return fmt.Sprintf("ColorFuncParams{gamma:%f, clip:%f}", cfp.gamma, cfp.clip)
 }
 
+// GammaScale returns a scaled and gamma corrected brightness.
 func GammaScale(val, max, gamma float64) float64 {
 	if gamma <= 0 {
 		gamma = 2.2 // default

@@ -6,6 +6,7 @@ import (
 	"sort"
 )
 
+// CalcResult are the calculation results for a point z.
 type CalcResult struct {
 	z   complex128
 	val uint
@@ -13,18 +14,21 @@ type CalcResult struct {
 	escaped, periodic bool
 }
 
+// CalcResults maps an ImagePoint to the corresponding CalcResult for that point.
 type CalcResults map[ImagePoint]*CalcResult
 
+// Add adds n, printing a warning if the value overflows.
 func (cr *CalcResult) Add(n uint) {
 	prev := cr.val
 	cr.val += n
 
 	if cr.val <= prev && n > 0 {
-		fmt.Printf("CalcResult %v Overflowed: setting value to max\n", cr)
+		fmt.Printf("Warning: CalcResult %v Overflowed: setting value to max\n", cr)
 		cr.val = math.MaxUint
 	}
 }
 
+// Add adds val to the existing val or creates a new CalcResult with val.
 func (cr CalcResults) Add(xy ImagePoint, z complex128, val uint) *CalcResult {
 	cr_xy, ok := cr[xy]
 	if !ok {
@@ -35,6 +39,7 @@ func (cr CalcResults) Add(xy ImagePoint, z complex128, val uint) *CalcResult {
 	return cr[xy]
 }
 
+// Merge makes a union with src by adding vals and setting booleans to the OR'd value.
 func (cr CalcResults) Merge(src CalcResults) {
 	for k, v := range src {
 		dst, ok := cr[k]
@@ -48,6 +53,7 @@ func (cr CalcResults) Merge(src CalcResults) {
 	}
 }
 
+// Max returns the highest val.
 func (cr CalcResults) Max() (max uint) {
 	for _, v := range cr {
 		if v.val > max {
@@ -57,6 +63,7 @@ func (cr CalcResults) Max() (max uint) {
 	return
 }
 
+// Min returns the lowest val.
 func (cr CalcResults) Min() (min uint) {
 	min = math.MaxUint
 	for _, v := range cr {
@@ -67,6 +74,7 @@ func (cr CalcResults) Min() (min uint) {
 	return
 }
 
+// Sum returns the sum of all vals.
 func (cr CalcResults) Sum() (sum uint) {
 	for _, v := range cr {
 		sum += v.val
@@ -74,10 +82,12 @@ func (cr CalcResults) Sum() (sum uint) {
 	return
 }
 
+// Avg returns the average of all vals.
 func (cr CalcResults) Avg() float64 {
 	return float64(cr.Sum()) / float64(len(cr))
 }
 
+// Median returns the median of the sorted vals.
 func (cr CalcResults) Median() uint {
 	var vals []uint
 	for _, v := range cr {
@@ -87,6 +97,7 @@ func (cr CalcResults) Median() uint {
 	return vals[len(vals)/2]
 }
 
+// PrintStats outputs a variety of stats about what's in the CalcResults.
 func (cr CalcResults) PrintStats() {
 	var periodic, escaped uint
 	for _, v := range cr {
@@ -104,5 +115,4 @@ func (cr CalcResults) PrintStats() {
 		"escaped: %d (%.1f%%), periodic: %d (%.1f%%)\n",
 		len(cr), cr.Max(), cr.Avg(), cr.Median(), cr.Min(),
 		escaped, escaped_pct, periodic, periodic_pct)
-	return
 }
