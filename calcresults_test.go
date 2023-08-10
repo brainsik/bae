@@ -28,3 +28,34 @@ func TestCalcResultsMerge(t *testing.T) {
 		}
 	}
 }
+
+func TestCalcResultsAdd(t *testing.T) {
+	crs := make(CalcResults)
+	pt := ImagePoint{4, 2}
+	z := complex(7, 7)
+	val := uint(42)
+
+	// Add new result
+	crs.Add(pt, z, val)
+
+	result, ok := crs[pt]
+	if !ok {
+		t.Fatalf("Expected %v to exist in CalcResults: %v", pt, crs)
+	}
+	if result.val != val {
+		t.Errorf("Expected result to have value %d, got %d", val, result.val)
+	}
+	if result.z != z {
+		t.Errorf("Expected result to have value %v, got %v", z, result.z)
+	}
+
+	// Add to existing result
+	crs.Add(pt, -z, val)
+
+	if result.val != val*2 {
+		t.Errorf("Expected result to have value %d, got %d", val*2, result.val)
+	}
+	if result.z != z {
+		t.Errorf("Expected result to have value %v, got %v", z, result.z)
+	}
+}

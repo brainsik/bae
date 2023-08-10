@@ -30,7 +30,7 @@ func (cr CalcResults) Add(xy ImagePoint, z complex128, val uint) *CalcResult {
 	if !ok {
 		cr[xy] = &CalcResult{z, val, false, false}
 	} else {
-		cr_xy.Add(1)
+		cr_xy.Add(val)
 	}
 	return cr[xy]
 }
