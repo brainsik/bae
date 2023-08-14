@@ -31,7 +31,7 @@ var zf_klein = ZFunc{ //nolint:unused
 }
 
 var zf_klein2 = ZFunc{ //nolint:unused
-	Desc: `Klein :: z^2 - y + i|x| + c`,
+	Desc: `Klein :: z^2 + |y| + ix + c`,
 	F: func(z, c complex128) complex128 {
 		return cmplx.Pow(z, 2.0) + complex(math.Abs(imag(z)), real(z)) + c
 	},
