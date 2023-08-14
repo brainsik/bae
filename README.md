@@ -4,11 +4,11 @@ This is the project I'm using to learn Go. As such, it's focus is trying and lea
 
 Here's [some images](https://hachyderm.io/@brainsik/110766510259586543) I [posted to Mastodon](https://hachyderm.io/@brainsik/110799062325634606):
 
-![Black Hole Sun](https://media.hachyderm.io/media_attachments/files/110/766/472/327/295/476/original/2c9c870af2121c9f.png)
+[![Black Hole Sun](https://media.hachyderm.io/media_attachments/files/110/766/472/327/295/476/original/2c9c870af2121c9f.png)](https://hachyderm.io/@brainsik/110766510259586543)
 
-![Cold Wave I](https://media.hachyderm.io/media_attachments/files/110/766/473/972/941/792/original/8790e99669f3d937.png)
+[![Cold Wave I](https://media.hachyderm.io/media_attachments/files/110/766/473/972/941/792/original/8790e99669f3d937.png)](https://hachyderm.io/@brainsik/110766510259586543)
 
-![Cold Wave II](https://media.hachyderm.io/media_attachments/files/110/799/023/645/893/103/original/256903eb291ccd11.png)
+[![Cold Wave II](https://media.hachyderm.io/media_attachments/files/110/799/023/645/893/103/original/256903eb291ccd11.png)](https://hachyderm.io/@brainsik/110799062325634606)
 
 ## ToDo
 
