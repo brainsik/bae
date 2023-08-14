@@ -9,22 +9,22 @@ import (
 
 // ColorFunc represents the alorithm used to determine the color of pixel in the image.
 type ColorFunc struct {
-	desc string
-	f    func(CalcResults, ColorFuncParams) ColorResults
+	Desc string
+	F    func(CalcResults, ColorFuncParams) ColorResults
 }
 
 // ColorFuncParams contains paramenters needed by a ColorFunc algorithm.
 type ColorFuncParams struct {
-	clip, gamma float64
-	showclip    bool
+	Clip, Gamma float64
+	Showclip    bool
 }
 
 func (cf ColorFunc) String() string {
-	return fmt.Sprintf("ColorFunc: %s", cf.desc)
+	return fmt.Sprintf("ColorFunc: %s", cf.Desc)
 }
 
 func (cfp ColorFuncParams) String() string {
-	return fmt.Sprintf("ColorFuncParams{gamma:%f, clip:%f}", cfp.gamma, cfp.clip)
+	return fmt.Sprintf("ColorFuncParams{gamma:%f, clip:%f}", cfp.Gamma, cfp.Clip)
 }
 
 // GammaScale returns a scaled and gamma corrected brightness.
@@ -39,16 +39,16 @@ func GammaScale(val, max, gamma float64) float64 {
 }
 
 var cf_luma_clip_percent = ColorFunc{
-	desc: `Brightness clips at given percent of max`,
-	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+	Desc: `Brightness clips at given percent of max`,
+	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
-		max := (params.clip / 100) * float64(histogram.Max())
+		max := (params.Clip / 100) * float64(histogram.Max())
 		for xy, v := range histogram {
-			val := float64(v.val)
-			if params.showclip && val >= max+1 {
+			val := float64(v.Val)
+			if params.Showclip && val >= max+1 {
 				coloring[xy] = color.NRGBA{0xff, 0xd4, 0x79, 0xff}
 			} else {
-				brightness := uint8(255 * GammaScale(val, max, params.gamma))
+				brightness := uint8(255 * GammaScale(val, max, params.Gamma))
 				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 0xff}
 			}
 		}
@@ -57,16 +57,16 @@ var cf_luma_clip_percent = ColorFunc{
 }
 
 var cf_luma_clip_value = ColorFunc{ //nolint:unused
-	desc: `Brightness clips at given value`,
-	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+	Desc: `Brightness clips at given value`,
+	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
-		max := params.clip
+		max := params.Clip
 		for xy, v := range histogram {
-			val := float64(v.val)
-			if params.showclip && val >= max+1 {
+			val := float64(v.Val)
+			if params.Showclip && val >= max+1 {
 				coloring[xy] = color.NRGBA{0xff, 0xd4, 0x79, 0xff}
 			} else {
-				brightness := uint8(255 * GammaScale(val, max, params.gamma))
+				brightness := uint8(255 * GammaScale(val, max, params.Gamma))
 				coloring[xy] = color.NRGBA{brightness, brightness, brightness, 0xff}
 			}
 		}
@@ -75,11 +75,11 @@ var cf_luma_clip_value = ColorFunc{ //nolint:unused
 }
 
 var cf_escaped_1bit = ColorFunc{ //nolint:unused
-	desc: `Escaped points are white (1bit color)`,
-	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+	Desc: `Escaped points are white (1bit color)`,
+	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
 		for xy, v := range histogram {
-			if v.escaped {
+			if v.Escaped {
 				coloring[xy] = color.NRGBA{0xff, 0xff, 0xff, 0xff}
 			} else {
 				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
@@ -90,14 +90,14 @@ var cf_escaped_1bit = ColorFunc{ //nolint:unused
 }
 
 var cf_escaped_clip_percent = ColorFunc{ //nolint:unused
-	desc: `Blue brightness depends on number of iterations to escape`,
-	f: func(histogram CalcResults, params ColorFuncParams) ColorResults {
+	Desc: `Blue brightness depends on number of iterations to escape`,
+	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
-		max := (params.clip / 100) * float64(histogram.Max())
+		max := (params.Clip / 100) * float64(histogram.Max())
 		for xy, v := range histogram {
-			val := float64(v.val)
-			if v.escaped {
-				brightness := uint8(255 * GammaScale(val, max, params.gamma))
+			val := float64(v.Val)
+			if v.Escaped {
+				brightness := uint8(255 * GammaScale(val, max, params.Gamma))
 				coloring[xy] = color.NRGBA{brightness / 4, brightness / 4, brightness, 255}
 			} else {
 				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}

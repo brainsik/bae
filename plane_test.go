@@ -129,11 +129,11 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	expect := NewPlane(complex(2, 2), complex(8, 4), 128)
 	expect_width := expect.ImageSize().width
 
-	if result.origin != expect.origin {
-		t.Error(result.origin, expect.origin)
+	if result.Origin != expect.Origin {
+		t.Error(result.Origin, expect.Origin)
 	}
-	if result.size != expect.size {
-		t.Error(result.size, expect.size)
+	if result.Size != expect.Size {
+		t.Error(result.Size, expect.Size)
 	}
 	if result_width != expect_width {
 		t.Error(result_width, expect_width)

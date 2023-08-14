@@ -42,20 +42,20 @@ func TestCalcResultsAdd(t *testing.T) {
 	if !ok {
 		t.Fatalf("Expected %v to exist in CalcResults: %v", pt, crs)
 	}
-	if result.val != val {
-		t.Errorf("Expected result to have value %d, got %d", val, result.val)
+	if result.Val != val {
+		t.Errorf("Expected result to have value %d, got %d", val, result.Val)
 	}
-	if result.z != z {
-		t.Errorf("Expected result to have value %v, got %v", z, result.z)
+	if result.Z != z {
+		t.Errorf("Expected result to have value %v, got %v", z, result.Z)
 	}
 
 	// Add to existing result
 	crs.Add(pt, -z, val)
 
-	if result.val != val*2 {
-		t.Errorf("Expected result to have value %d, got %d", val*2, result.val)
+	if result.Val != val*2 {
+		t.Errorf("Expected result to have value %d, got %d", val*2, result.Val)
 	}
-	if result.z != z {
-		t.Errorf("Expected result to have value %v, got %v", z, result.z)
+	if result.Z != z {
+		t.Errorf("Expected result to have value %v, got %v", z, result.Z)
 	}
 }

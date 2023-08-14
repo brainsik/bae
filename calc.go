@@ -26,8 +26,8 @@ var CalcStyleName = map[int]string{
 
 // CalcPoint is the mapping between coordinate types.
 type CalcPoint struct {
-	z  complex128
-	xy ImagePoint
+	Z  complex128
+	XY ImagePoint
 }
 
 // ColorResults maps image plane coordinates to a color.
@@ -35,20 +35,20 @@ type ColorResults map[ImagePoint]color.NRGBA
 
 // CalcParams contains all the parameters needed to generate an image.
 type CalcParams struct {
-	plane *Plane
+	Plane *Plane
 
-	style CalcStyle
-	zf    ZFunc
-	c     complex128
+	Style CalcStyle
+	ZF    ZFunc
+	C     complex128
 
-	cf  ColorFunc
-	cfp ColorFuncParams
+	CF  ColorFunc
+	CFP ColorFuncParams
 
-	iterations int
-	limit      float64
+	Iterations int
+	Limit      float64
 
-	calc_area          PlaneView
-	r_points, i_points int
+	CalcArea         PlaneView
+	RPoints, IPoints int
 }
 
 func (cs CalcStyle) String() string {
@@ -56,7 +56,7 @@ func (cs CalcStyle) String() string {
 }
 
 func (cp CalcPoint) String() string {
-	return fmt.Sprintf("{%v, %v}", cp.z, cp.xy)
+	return fmt.Sprintf("{%v, %v}", cp.Z, cp.XY)
 }
 
 func (cp *CalcParams) String() string {
@@ -64,9 +64,9 @@ func (cp *CalcParams) String() string {
 		"CalcParams{\n%v\nStyle: %v\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
 			"calc area: %v\n"+
 			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
-		cp.plane, cp.style, cp.zf, cp.cf, cp.cfp, cp.c, cp.iterations, cp.limit, cp.calc_area,
-		cp.r_points, real(cp.calc_area.min), real(cp.calc_area.max), cp.calc_area.RealLen(),
-		cp.i_points, imag(cp.calc_area.min), imag(cp.calc_area.max), cp.calc_area.ImagLen())
+		cp.Plane, cp.Style, cp.ZF, cp.CF, cp.CFP, cp.C, cp.Iterations, cp.Limit, cp.CalcArea,
+		cp.RPoints, real(cp.CalcArea.Min), real(cp.CalcArea.Max), cp.CalcArea.RealLen(),
+		cp.IPoints, imag(cp.CalcArea.Min), imag(cp.CalcArea.Max), cp.CalcArea.ImagLen())
 }
 
 // NewAllPoints is a helper function that sets the calculation area of the
@@ -74,48 +74,48 @@ func (cp *CalcParams) String() string {
 // is calculated.
 func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncParams) CalcParams {
 	if iterations <= 0 {
-		iterations = cp.iterations
+		iterations = cp.Iterations
 	}
 
 	return CalcParams{
 		// modified
-		cf:         cf,
-		cfp:        cfp,
-		iterations: iterations,
-		calc_area:  cp.plane.view,
-		r_points:   cp.plane.ImageSize().width,
-		i_points:   cp.plane.ImageSize().height,
+		CF:         cf,
+		CFP:        cfp,
+		Iterations: iterations,
+		CalcArea:   cp.Plane.View,
+		RPoints:    cp.Plane.ImageSize().width,
+		IPoints:    cp.Plane.ImageSize().height,
 
 		// unchanged
-		plane: cp.plane,
-		zf:    cp.zf,
-		c:     cp.c,
-		limit: cp.limit,
+		Plane: cp.Plane,
+		ZF:    cp.ZF,
+		C:     cp.C,
+		Limit: cp.Limit,
 	}
 }
 
 // MakePlaneProblemSet returns a problem set for an even distribution of points in the calc_area.
 func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 	// TODO: Return an Error instead?
-	if cp.calc_area.RealLen() > 0 && cp.r_points <= 1 {
+	if cp.CalcArea.RealLen() > 0 && cp.RPoints <= 1 {
 		panic("Undefined how to make a single point problem on a non-single point line." +
 			"Either add more points or set the length of real(calc_area) to be a single point.")
 	}
-	if cp.calc_area.ImagLen() > 0 && cp.i_points <= 1 {
+	if cp.CalcArea.ImagLen() > 0 && cp.IPoints <= 1 {
 		panic("Undefined how to make a single point problem on a non-single point line." +
 			"Either add more points or set the length of imag(calc_area) to be a single point.")
 	}
 
-	r_step := cp.calc_area.RealLen() / float64(cp.r_points-1)
-	i_step := cp.calc_area.ImagLen() / float64(cp.i_points-1)
+	r_step := cp.CalcArea.RealLen() / float64(cp.RPoints-1)
+	i_step := cp.CalcArea.ImagLen() / float64(cp.IPoints-1)
 
-	r := real(cp.calc_area.min)
-	for r_pt := 0; r_pt < cp.r_points; r_pt++ {
-		i := imag(cp.calc_area.min)
-		for i_pt := 0; i_pt < cp.i_points; i_pt++ {
+	r := real(cp.CalcArea.Min)
+	for r_pt := 0; r_pt < cp.RPoints; r_pt++ {
+		i := imag(cp.CalcArea.Min)
+		for i_pt := 0; i_pt < cp.IPoints; i_pt++ {
 			z := complex(r, i)
-			xy := cp.plane.ImagePoint(z)
-			problems = append(problems, CalcPoint{z: z, xy: xy})
+			xy := cp.Plane.ImagePoint(z)
+			problems = append(problems, CalcPoint{Z: z, XY: xy})
 			i += i_step
 		}
 		r += r_step
@@ -125,11 +125,11 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 
 // MakeImageProblemSet returns a problem set representing every point in the image plane.
 func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
-	for x := 0; x < cp.plane.ImageSize().width; x++ {
-		for y := 0; y < cp.plane.ImageSize().height; y++ {
+	for x := 0; x < cp.Plane.ImageSize().width; x++ {
+		for y := 0; y < cp.Plane.ImageSize().height; y++ {
 			xy := ImagePoint{x: x, y: y}
-			z := cp.plane.PlanePoint(xy)
-			problems = append(problems, CalcPoint{z: z, xy: xy})
+			z := cp.Plane.PlanePoint(xy)
+			problems = append(problems, CalcPoint{Z: z, XY: xy})
 		}
 	}
 	return
@@ -141,42 +141,42 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	calc_id := fmt.Sprintf("%p", problems)
 	showed_progress := make(map[int]bool)
 
-	img_width := cp.plane.ImageSize().width
-	img_height := cp.plane.ImageSize().height
+	img_width := cp.Plane.ImageSize().width
+	img_height := cp.Plane.ImageSize().height
 
 	// rz_min, rz_max := real(cp.plane.view.min), real(cp.plane.view.max)
 	// iz_min, iz_max := imag(cp.plane.view.min), imag(cp.plane.view.max)
 
 	var total_its, num_escaped, num_periodic uint
 	histogram = make(CalcResults)
-	f_zc := cp.zf.f
+	f_zc := cp.ZF.F
 
 	for progress, pt := range problems {
 		var z, c complex128
-		if cp.style == Mandelbrot {
+		if cp.Style == Mandelbrot {
 			z = complex(0, 0)
-			c = pt.z
+			c = pt.Z
 		} else {
-			z = pt.z
-			c = cp.c
+			z = pt.Z
+			c = cp.C
 		}
 
 		rag := make(map[complex128]bool)
-		for its := 0; its < cp.iterations; its++ {
+		for its := 0; its < cp.Iterations; its++ {
 			total_its++
 
 			z = f_zc(z, c)
-			xy := cp.plane.ImagePoint(z)
+			xy := cp.Plane.ImagePoint(z)
 			// if real(z) < rz_min || real(z) > rz_max || imag(z) < iz_min || imag(z) > iz_max {
 			// 	continue
 			// }
 
 			// Escaped?
-			if cmplx.Abs(z) > cp.limit {
-				if cp.style == Attractor {
-					histogram.Add(xy, z, 1).escaped = true
+			if cmplx.Abs(z) > cp.Limit {
+				if cp.Style == Attractor {
+					histogram.Add(xy, z, 1).Escaped = true
 				} else {
-					histogram.Add(pt.xy, pt.z, 1).escaped = true
+					histogram.Add(pt.XY, pt.Z, 1).Escaped = true
 				}
 				num_escaped++
 				// fmt.Printf("Point %v escaped after %v iterations\n", z0, its)
@@ -185,10 +185,10 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 
 			// Periodic?
 			if rag[z] {
-				if cp.style == Attractor {
-					histogram.Add(xy, z, 1).periodic = true
+				if cp.Style == Attractor {
+					histogram.Add(xy, z, 1).Periodic = true
 				} else {
-					histogram.Add(pt.xy, pt.z, 1).periodic = true
+					histogram.Add(pt.XY, pt.Z, 1).Periodic = true
 				}
 				num_periodic++
 				// fmt.Printf("Point %v become periodic after %v iterations\n", z0, its)
@@ -196,13 +196,13 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 			}
 			rag[z] = true
 
-			if cp.style == Attractor {
+			if cp.Style == Attractor {
 				// Only add to histogram if pixel is in the image plane.
 				if xy.x >= 0 && xy.x <= img_width && xy.y >= 0 && xy.y <= img_height {
 					histogram.Add(xy, z, 1)
 				}
 			} else {
-				histogram.Add(pt.xy, pt.z, 1)
+				histogram.Add(pt.XY, pt.Z, 1)
 			}
 		}
 
@@ -217,7 +217,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 		}
 	}
 	t_total := time.Since(t_start).Seconds()
-	max_its := len(problems) * cp.iterations
+	max_its := len(problems) * cp.Iterations
 	fmt.Printf("[%v] ✅ Finish %s %6.0fs (%.0f its/s) • %d its (%1.f%%) • %d escaped, %d periodic\n",
 		TimestampMilli(), calc_id, t_total,
 		float64(total_its)/t_total, total_its, 100*float64(total_its)/float64(max_its),
@@ -233,7 +233,7 @@ func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults)
 	}
 
 	var problems []CalcPoint
-	if cp.style == Attractor {
+	if cp.Style == Attractor {
 		problems = cp.MakePlaneProblemSet()
 	} else {
 		problems = cp.MakeImageProblemSet()
@@ -293,9 +293,9 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	histogram.PrintStats()
 
 	t_start := time.Now()
-	colors := cp.cf.f(histogram, cp.cfp)
+	colors := cp.CF.F(histogram, cp.CFP)
 	for pt, rgba := range colors {
-		cp.plane.image.Set(pt.x, pt.y, rgba)
+		cp.Plane.Image.Set(pt.x, pt.y, rgba)
 	}
 	fmt.Printf("Image processing took %dms\n", time.Since(t_start).Milliseconds())
 }

@@ -7,10 +7,10 @@ import (
 
 func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
 	params := CalcParams{
-		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
-		calc_area: PlaneView{complex(-1, -1), complex(1, 1)},
-		r_points:  1,
-		i_points:  1,
+		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: PlaneView{complex(-1, -1), complex(1, 1)},
+		RPoints:  1,
+		IPoints:  1,
 	}
 
 	defer func() { _ = recover() }()
@@ -20,10 +20,10 @@ func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
 
 func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 	params := CalcParams{
-		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
-		calc_area: PlaneView{complex(-1, -1), complex(1, 1)},
-		r_points:  3,
-		i_points:  3,
+		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: PlaneView{complex(-1, -1), complex(1, 1)},
+		RPoints:  3,
+		IPoints:  3,
 	}
 
 	// Get.
@@ -47,13 +47,13 @@ func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 
 	// Sort.
 	less := func(cp []CalcPoint, i, j int) bool {
-		ix := cp[i].xy.x
-		jx := cp[j].xy.x
+		ix := cp[i].XY.x
+		jx := cp[j].XY.x
 		switch {
 		case ix < jx:
 			return true
 		case ix == jx:
-			return cp[i].xy.y < cp[j].xy.y
+			return cp[i].XY.y < cp[j].XY.y
 		default: // ix > jx
 			return false
 		}
@@ -71,10 +71,10 @@ func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 
 func TestMakePlaneProblemSetSinglePoint(t *testing.T) {
 	params := CalcParams{
-		plane:     NewPlane(complex(0, 0), complex(2, 2), 10),
-		calc_area: PlaneView{complex(-1, -1), complex(-1, -1)},
-		r_points:  1,
-		i_points:  1,
+		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: PlaneView{complex(-1, -1), complex(-1, -1)},
+		RPoints:  1,
+		IPoints:  1,
 	}
 
 	// Get.

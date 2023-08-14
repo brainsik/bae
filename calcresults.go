@@ -8,10 +8,10 @@ import (
 
 // CalcResult are the calculation results for a point z.
 type CalcResult struct {
-	z   complex128
-	val uint
+	Z   complex128
+	Val uint
 
-	escaped, periodic bool
+	Escaped, Periodic bool
 }
 
 // CalcResults maps an ImagePoint to the corresponding CalcResult for that point.
@@ -19,12 +19,12 @@ type CalcResults map[ImagePoint]*CalcResult
 
 // Add adds n, printing a warning if the value overflows.
 func (cr *CalcResult) Add(n uint) {
-	prev := cr.val
-	cr.val += n
+	prev := cr.Val
+	cr.Val += n
 
-	if cr.val <= prev && n > 0 {
+	if cr.Val <= prev && n > 0 {
 		fmt.Printf("Warning: CalcResult %v Overflowed: setting value to max\n", cr)
-		cr.val = math.MaxUint
+		cr.Val = math.MaxUint
 	}
 }
 
@@ -46,9 +46,9 @@ func (cr CalcResults) Merge(src CalcResults) {
 		if !ok {
 			cr[k] = v
 		} else {
-			dst.val += v.val
-			dst.escaped = dst.escaped || v.escaped
-			dst.periodic = dst.periodic || v.periodic
+			dst.Val += v.Val
+			dst.Escaped = dst.Escaped || v.Escaped
+			dst.Periodic = dst.Periodic || v.Periodic
 		}
 	}
 }
@@ -56,8 +56,8 @@ func (cr CalcResults) Merge(src CalcResults) {
 // Max returns the highest val.
 func (cr CalcResults) Max() (max uint) {
 	for _, v := range cr {
-		if v.val > max {
-			max = v.val
+		if v.Val > max {
+			max = v.Val
 		}
 	}
 	return
@@ -67,8 +67,8 @@ func (cr CalcResults) Max() (max uint) {
 func (cr CalcResults) Min() (min uint) {
 	min = math.MaxUint
 	for _, v := range cr {
-		if v.val < min {
-			min = v.val
+		if v.Val < min {
+			min = v.Val
 		}
 	}
 	return
@@ -77,7 +77,7 @@ func (cr CalcResults) Min() (min uint) {
 // Sum returns the sum of all vals.
 func (cr CalcResults) Sum() (sum uint) {
 	for _, v := range cr {
-		sum += v.val
+		sum += v.Val
 	}
 	return
 }
@@ -91,7 +91,7 @@ func (cr CalcResults) Avg() float64 {
 func (cr CalcResults) Median() uint {
 	var vals []uint
 	for _, v := range cr {
-		vals = append(vals, v.val)
+		vals = append(vals, v.Val)
 	}
 	sort.Slice(vals, func(i, j int) bool { return vals[i] < vals[j] })
 	return vals[len(vals)/2]
@@ -101,9 +101,9 @@ func (cr CalcResults) Median() uint {
 func (cr CalcResults) PrintStats() {
 	var periodic, escaped uint
 	for _, v := range cr {
-		if v.escaped {
+		if v.Escaped {
 			escaped++
-		} else if v.periodic {
+		} else if v.Periodic {
 			periodic++
 		}
 	}
