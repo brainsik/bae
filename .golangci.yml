@@ -1,9 +1,12 @@
 linters:
   enable:
+    - gocyclo
     - gofmt
     - goimports
+    - gosec
     - misspell
     - revive
+    - whitespace
 
 # Per-linter settings are contained in this top-level key
 linters-settings:
