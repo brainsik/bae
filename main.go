@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	WIDTH  = 3840
+	WIDTH  = 3400
 	ASPECT = 0.625
 )
 
 func main() {
-	params := &coldwave2
+	params := &klein
 	params.ColorImage(3)
 	params.Plane.WritePNG("image.png")
 }
@@ -21,7 +21,7 @@ func TimestampMilli() string {
 }
 
 var klein = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(-0.1, -0.54), complex(2.6, 2.6*ASPECT), WIDTH),
+	Plane: NewPlaneInverted(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH),
 
 	Style: Attractor,
 	ZF:    zf_klein,
@@ -34,7 +34,7 @@ var klein = CalcParams{ //nolint:unused
 	RPoints:  1,
 	IPoints:  1,
 
-	Iterations: int(math.Pow(2, 23)),
+	Iterations: int(math.Pow(2, 24)),
 	Limit:      4,
 }
 
