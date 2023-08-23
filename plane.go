@@ -15,6 +15,7 @@ import (
 type Plane struct {
 	Origin, Size complex128
 	View         PlaneView
+	Inverted     bool
 
 	r_step, i_step float64
 	x_step, y_step float64
@@ -60,9 +61,10 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	draw.Draw(img, img.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 
 	return &Plane{
-		Origin: origin,
-		Size:   size,
-		View:   view,
+		Origin:   origin,
+		Size:     size,
+		View:     view,
+		Inverted: false,
 
 		// Points per pixel.
 		r_step: r_step,
@@ -74,6 +76,12 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 		Image: img,
 	}
+}
+
+func NewPlaneInverted(origin, size complex128, x_pixels int) *Plane {
+	p := NewPlane(origin, size, x_pixels)
+	p.Inverted = true
+	return p
 }
 
 func (p *Plane) String() string {
@@ -92,8 +100,15 @@ func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 	}
 
 	r := real(p.View.Min) + float64(px.x)*p.r_step
-	// i on the complex plane and y on the pixel plane increase in opposite directions
-	i := imag(p.View.Max) - float64(px.y)*p.i_step
+
+	var i float64
+	if !p.Inverted {
+		// i on the complex plane and y on the pixel plane increase in opposite directions
+		i = imag(p.View.Max) - float64(px.y)*p.i_step
+	} else {
+		// leave inverted
+		i = imag(p.View.Min) + float64(px.y)*p.i_step
+	}
 	return complex(r, i)
 }
 
@@ -123,8 +138,10 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 
 	x := int(math.Round(real(z_adj) * p.x_step))
 	y := int(math.Round(imag(z_adj) * p.y_step))
-	// Flip y, it increases in the opposite direction as i.
-	y = p.ImageSize().height - y
+	if !p.Inverted {
+		// Flip y, it increases in the opposite direction as i.
+		y = p.ImageSize().height - y
+	}
 
 	return ImagePoint{x, y}
 }
@@ -165,6 +182,7 @@ type planeJSON struct {
 	Origin    [2]float64 `json:"origin"`
 	Size      [2]float64 `json:"size"`
 	View      [4]float64 `json:"view,omitempty"`
+	Inverted  bool       `json:"inverted"`
 	ImageSize [2]int     `json:"image_size"`
 }
 
@@ -175,6 +193,7 @@ func (p *Plane) MarshalJSON() ([]byte, error) {
 			Origin:    [2]float64{real(p.Origin), imag(p.Origin)},
 			Size:      [2]float64{real(p.Size), imag(p.Size)},
 			View:      [4]float64{real(p.View.Min), imag(p.View.Min), real(p.View.Max), imag(p.View.Max)},
+			Inverted:  p.Inverted,
 			ImageSize: [2]int{img_size.width, img_size.height},
 		})
 }
@@ -189,7 +208,12 @@ func (p *Plane) UnmarshalJSON(data []byte) error {
 	origin := complex(v.Origin[0], v.Origin[1])
 	size := complex(v.Size[0], v.Size[1])
 	x_pixels := v.ImageSize[0]
-	*p = *NewPlane(origin, size, x_pixels)
+
+	if v.Inverted {
+		*p = *NewPlaneInverted(origin, size, x_pixels)
+	} else {
+		*p = *NewPlane(origin, size, x_pixels)
+	}
 
 	return nil
 }
