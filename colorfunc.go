@@ -42,7 +42,7 @@ var cf_luma_clip_percent = ColorFunc{
 	Desc: `Brightness clips at given percent of max`,
 	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
-		max := (params.Clip / 100) * float64(histogram.Max())
+		max := (params.Clip / 100) * histogram.Max()
 		for xy, v := range histogram {
 			val := float64(v.Val)
 			if params.Showclip && val >= max+1 {
@@ -93,7 +93,7 @@ var cf_escaped_clip_percent = ColorFunc{ //nolint:unused
 	Desc: `Blue brightness depends on number of iterations to escape`,
 	F: func(histogram CalcResults, params ColorFuncParams) ColorResults {
 		coloring := make(ColorResults)
-		max := (params.Clip / 100) * float64(histogram.Max())
+		max := (params.Clip / 100) * histogram.Max()
 		for xy, v := range histogram {
 			val := float64(v.Val)
 			if v.Escaped {

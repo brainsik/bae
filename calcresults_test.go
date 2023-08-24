@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"testing"
 )
 
@@ -57,5 +58,35 @@ func TestCalcResultsAdd(t *testing.T) {
 	}
 	if result.Z != z {
 		t.Errorf("Expected result to have value %v, got %v", z, result.Z)
+	}
+}
+
+func TestCalcResultsEmptyZero(t *testing.T) {
+	crs := make(CalcResults)
+	result := crs.Sum()
+	expect := uint(0)
+	if result != expect {
+		t.Errorf("Expected result to be %v, got %v", expect, result)
+	}
+}
+
+func TestCalcResultsEmptyNaN(t *testing.T) {
+	crs := make(CalcResults)
+	testCases := []struct {
+		name string
+		f    func() float64
+	}{
+		{"Max", crs.Max},
+		{"Min", crs.Min},
+		{"Avg", crs.Avg},
+		{"Median", crs.Median},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := tc.f()
+			if !math.IsNaN(tc.f()) {
+				t.Errorf("Expected result to be %v, got %v", math.NaN(), result)
+			}
+		})
 	}
 }

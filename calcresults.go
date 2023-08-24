@@ -53,25 +53,34 @@ func (cr CalcResults) Merge(src CalcResults) {
 	}
 }
 
+/* Statistics */
+
 // Max returns the highest val.
-func (cr CalcResults) Max() (max uint) {
+func (cr CalcResults) Max() float64 {
+	if len(cr) <= 0 {
+		return math.NaN()
+	}
+	var max uint
 	for _, v := range cr {
 		if v.Val > max {
 			max = v.Val
 		}
 	}
-	return
+	return float64(max)
 }
 
 // Min returns the lowest val.
-func (cr CalcResults) Min() (min uint) {
-	min = math.MaxUint
+func (cr CalcResults) Min() float64 {
+	if len(cr) <= 0 {
+		return math.NaN()
+	}
+	var min uint = math.MaxUint
 	for _, v := range cr {
 		if v.Val < min {
 			min = v.Val
 		}
 	}
-	return
+	return float64(min)
 }
 
 // Sum returns the sum of all vals.
@@ -88,13 +97,17 @@ func (cr CalcResults) Avg() float64 {
 }
 
 // Median returns the median of the sorted vals.
-func (cr CalcResults) Median() uint {
+func (cr CalcResults) Median() float64 {
+	if len(cr) <= 0 {
+		return math.NaN()
+	}
+
 	var vals []uint
 	for _, v := range cr {
 		vals = append(vals, v.Val)
 	}
 	sort.Slice(vals, func(i, j int) bool { return vals[i] < vals[j] })
-	return vals[len(vals)/2]
+	return float64(vals[len(vals)/2])
 }
 
 // PrintStats outputs a variety of stats about what's in the CalcResults.
@@ -111,7 +124,7 @@ func (cr CalcResults) PrintStats() {
 	periodic_pct := 100 * float64(periodic) / float64(len(cr))
 
 	fmt.Printf("[CalcResults] "+
-		"total: %d, max: %d, avg: %.1f, median: %d, min: %d, "+
+		"total: %d, max: %.0f, avg: %.1f, median: %.0f, min: %.0f, "+
 		"escaped: %d (%.1f%%), periodic: %d (%.1f%%)\n",
 		len(cr), cr.Max(), cr.Avg(), cr.Median(), cr.Min(),
 		escaped, escaped_pct, periodic, periodic_pct)
