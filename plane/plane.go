@@ -84,6 +84,11 @@ func (p *Plane) WithInverted() *Plane {
 	return p
 }
 
+// NewOrigin returns a new Plane with the given size.
+func (p *Plane) NewOrigin(origin complex128) *Plane {
+	return NewPlane(origin, p.Size, p.ImageWidth())
+}
+
 // NewSize returns a new Plane with the given size.
 func (p *Plane) NewSize(size complex128) *Plane {
 	return NewPlane(p.Origin, size, p.ImageWidth())
