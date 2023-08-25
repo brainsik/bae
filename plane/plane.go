@@ -84,6 +84,11 @@ func (p *Plane) WithInverted() *Plane {
 	return p
 }
 
+// NewSize returns a new Plane with the given size.
+func (p *Plane) NewSize(size complex128) *Plane {
+	return NewPlane(p.Origin, size, p.ImageWidth())
+}
+
 func (p *Plane) String() string {
 	return fmt.Sprintf(
 		"Plane{Origin:%v, View:%v, Image:%dx%d}",

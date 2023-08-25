@@ -18,6 +18,27 @@ func TestWithInverted(t *testing.T) {
 	}
 }
 
+func TestNewSize(t *testing.T) {
+	x_pixels := 100
+	p1 := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
+
+	expect_size := complex(2, 2)
+	expect_y_pixels := x_pixels
+	p2 := p1.NewSize(expect_size)
+	result_size := p2.Size
+	result_y_pixels := p2.ImageHeight()
+
+	if p1 == p2 {
+		t.Fatalf("Expected a new plane to be created.")
+	}
+	if result_size != expect_size {
+		t.Errorf("Expected new size to be %v, got %v", expect_size, result_size)
+	}
+	if result_y_pixels != expect_y_pixels {
+		t.Errorf("Expected new image height to be %v, got %v", expect_y_pixels, result_y_pixels)
+	}
+}
+
 func TestImageWidth(t *testing.T) {
 	x_pixels := 128
 	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
