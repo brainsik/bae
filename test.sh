@@ -3,4 +3,4 @@ set -eu -o pipefail
 
 set -x
 golangci-lint run
-go test
+go test ./...

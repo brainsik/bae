@@ -1,4 +1,4 @@
-package main
+package plane
 
 import (
 	"encoding/json"
@@ -86,39 +86,39 @@ func NewPlaneInverted(origin, size complex128, x_pixels int) *Plane {
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
-		"Plane{Origin:%v, View:%v, ImageSize:%v}",
-		p.Origin, p.View, p.ImageSize())
+		"Plane{Origin:%v, View:%v, Image:%dx%d}",
+		p.Origin, p.View, p.ImageWidth(), p.ImageHeight())
 }
 
 // PlanePoint returns the point in the complex plane corresponding to the given point in the image plane.
 func (p *Plane) PlanePoint(px ImagePoint) complex128 {
-	if px.x < 0 || px.x > p.ImageSize().width {
-		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageSize().width)
+	if px.X < 0 || px.X > p.ImageWidth() {
+		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageWidth())
 	}
-	if px.y < 0 || px.y > p.ImageSize().height {
-		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageSize().height)
+	if px.Y < 0 || px.Y > p.ImageHeight() {
+		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageHeight())
 	}
 
-	r := real(p.View.Min) + float64(px.x)*p.r_step
+	r := real(p.View.Min) + float64(px.X)*p.r_step
 
 	var i float64
 	if !p.Inverted {
 		// i on the complex plane and y on the pixel plane increase in opposite directions
-		i = imag(p.View.Max) - float64(px.y)*p.i_step
+		i = imag(p.View.Max) - float64(px.Y)*p.i_step
 	} else {
 		// leave inverted
-		i = imag(p.View.Min) + float64(px.y)*p.i_step
+		i = imag(p.View.Min) + float64(px.Y)*p.i_step
 	}
 	return complex(r, i)
 }
 
 // ImagePoint represents coordinates in the image plane.
 type ImagePoint struct {
-	x, y int
+	X, Y int
 }
 
 func (ip ImagePoint) String() string {
-	return fmt.Sprintf("(%v, %v)", ip.x, ip.y)
+	return fmt.Sprintf("(%v, %v)", ip.X, ip.Y)
 }
 
 // PlanePoint returns the point in the image plane corresponding to the given point in the complex plane.
@@ -140,7 +140,7 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	y := int(math.Round(imag(z_adj) * p.y_step))
 	if !p.Inverted {
 		// Flip y, it increases in the opposite direction as i.
-		y = p.ImageSize().height - y
+		y = p.ImageHeight() - y
 	}
 
 	return ImagePoint{x, y}
@@ -149,21 +149,17 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 // Set sets the color in the image plane corresponding to the given complex plane point.
 func (p *Plane) Set(z complex128, rgba color.NRGBA) {
 	xy := p.ImagePoint(z)
-	p.Image.Set(xy.x, xy.y, rgba)
+	p.Image.Set(xy.X, xy.Y, rgba)
 }
 
-// ImageSize represents the image width and height.
-type ImageSize struct {
-	width, height int
+// ImageWidth returns the image width.
+func (p *Plane) ImageWidth() int {
+	return p.Image.Rect.Dx()
 }
 
-func (is ImageSize) String() string {
-	return fmt.Sprintf("%vx%v", is.width, is.height)
-}
-
-// ImageSize returns the image size.
-func (p *Plane) ImageSize() ImageSize {
-	return ImageSize{p.Image.Rect.Dx(), p.Image.Rect.Dy()}
+// ImageHeight returns the image width.
+func (p *Plane) ImageHeight() int {
+	return p.Image.Rect.Dy()
 }
 
 // WritePNG outputs a PNG file at the given path.
@@ -187,14 +183,13 @@ type planeJSON struct {
 }
 
 func (p *Plane) MarshalJSON() ([]byte, error) {
-	img_size := p.ImageSize()
 	return json.Marshal(
 		planeJSON{
 			Origin:    [2]float64{real(p.Origin), imag(p.Origin)},
 			Size:      [2]float64{real(p.Size), imag(p.Size)},
 			View:      [4]float64{real(p.View.Min), imag(p.View.Min), real(p.View.Max), imag(p.View.Max)},
 			Inverted:  p.Inverted,
-			ImageSize: [2]int{img_size.width, img_size.height},
+			ImageSize: [2]int{p.ImageWidth(), p.ImageHeight()},
 		})
 }
 

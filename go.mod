@@ -1,3 +1,3 @@
-module brainsik/bae
+module github.com/brainsik/bae
 
 go 1.21

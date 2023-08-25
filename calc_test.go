@@ -3,12 +3,14 @@ package main
 import (
 	"sort"
 	"testing"
+
+	"github.com/brainsik/bae/plane"
 )
 
 func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
 	params := CalcParams{
-		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
-		CalcArea: PlaneView{complex(-1, -1), complex(1, 1)},
+		Plane:    plane.NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: plane.PlaneView{Min: complex(-1, -1), Max: complex(1, 1)},
 		RPoints:  1,
 		IPoints:  1,
 	}
@@ -18,27 +20,31 @@ func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
 	t.Errorf("Expected MakeAttractorProblemSet to panic.")
 }
 
+func NewPlane(c1, c2 complex128, i int) {
+	panic("unimplemented")
+}
+
 func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 	params := CalcParams{
-		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
-		CalcArea: PlaneView{complex(-1, -1), complex(1, 1)},
+		Plane:    plane.NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: plane.PlaneView{Min: complex(-1, -1), Max: complex(1, 1)},
 		RPoints:  3,
 		IPoints:  3,
 	}
 
 	// Get.
 	expect := []CalcPoint{
-		{(-1 + 1i), ImagePoint{0, 0}},
-		{(-1 + 0i), ImagePoint{0, 5}},
-		{(-1 - 1i), ImagePoint{0, 10}},
+		{(-1 + 1i), plane.ImagePoint{X: 0, Y: 0}},
+		{(-1 + 0i), plane.ImagePoint{X: 0, Y: 5}},
+		{(-1 - 1i), plane.ImagePoint{X: 0, Y: 10}},
 
-		{(0 + 1i), ImagePoint{5, 0}},
-		{(0 + 0i), ImagePoint{5, 5}},
-		{(0 - 1i), ImagePoint{5, 10}},
+		{(0 + 1i), plane.ImagePoint{X: 5, Y: 0}},
+		{(0 + 0i), plane.ImagePoint{X: 5, Y: 5}},
+		{(0 - 1i), plane.ImagePoint{X: 5, Y: 10}},
 
-		{(1 + 1i), ImagePoint{10, 0}},
-		{(1 + 0i), ImagePoint{10, 5}},
-		{(1 - 1i), ImagePoint{10, 10}},
+		{(1 + 1i), plane.ImagePoint{X: 10, Y: 0}},
+		{(1 + 0i), plane.ImagePoint{X: 10, Y: 5}},
+		{(1 - 1i), plane.ImagePoint{X: 10, Y: 10}},
 	}
 	result := params.MakePlaneProblemSet()
 	if len(result) != len(expect) {
@@ -47,13 +53,13 @@ func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 
 	// Sort.
 	less := func(cp []CalcPoint, i, j int) bool {
-		ix := cp[i].XY.x
-		jx := cp[j].XY.x
+		ix := cp[i].XY.X
+		jx := cp[j].XY.X
 		switch {
 		case ix < jx:
 			return true
 		case ix == jx:
-			return cp[i].XY.y < cp[j].XY.y
+			return cp[i].XY.Y < cp[j].XY.Y
 		default: // ix > jx
 			return false
 		}
@@ -71,14 +77,14 @@ func TestMakePlaneProblemSetMultiplePoints(t *testing.T) {
 
 func TestMakePlaneProblemSetSinglePoint(t *testing.T) {
 	params := CalcParams{
-		Plane:    NewPlane(complex(0, 0), complex(2, 2), 10),
-		CalcArea: PlaneView{complex(-1, -1), complex(-1, -1)},
+		Plane:    plane.NewPlane(complex(0, 0), complex(2, 2), 10),
+		CalcArea: plane.PlaneView{Min: complex(-1, -1), Max: complex(-1, -1)},
 		RPoints:  1,
 		IPoints:  1,
 	}
 
 	// Get.
-	expect := []CalcPoint{{(-1 - 1i), ImagePoint{0, 10}}}
+	expect := []CalcPoint{{(-1 - 1i), plane.ImagePoint{X: 0, Y: 10}}}
 	result := params.MakePlaneProblemSet()
 	if len(result) != 1 {
 		t.Fatalf("len(result) = %d; want 1", len(result))

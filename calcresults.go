@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"sort"
+
+	"github.com/brainsik/bae/plane"
 )
 
 // CalcResult are the calculation results for a point z.
@@ -15,7 +17,7 @@ type CalcResult struct {
 }
 
 // CalcResults maps an ImagePoint to the corresponding CalcResult for that point.
-type CalcResults map[ImagePoint]*CalcResult
+type CalcResults map[plane.ImagePoint]*CalcResult
 
 // Add adds n, printing a warning if the value overflows.
 func (cr *CalcResult) Add(n uint) {
@@ -29,7 +31,7 @@ func (cr *CalcResult) Add(n uint) {
 }
 
 // Add adds val to the existing val or creates a new CalcResult with val.
-func (cr CalcResults) Add(xy ImagePoint, z complex128, val uint) *CalcResult {
+func (cr CalcResults) Add(xy plane.ImagePoint, z complex128, val uint) *CalcResult {
 	cr_xy, ok := cr[xy]
 	if !ok {
 		cr[xy] = &CalcResult{z, val, false, false}

@@ -1,4 +1,4 @@
-package main
+package plane
 
 import (
 	"encoding/json"
@@ -6,12 +6,24 @@ import (
 	"testing"
 )
 
-func TestImageSize(t *testing.T) {
+func TestImageWidth(t *testing.T) {
 	x_pixels := 128
 	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
 
-	expect := ImageSize{x_pixels, x_pixels / 2}
-	result := p.ImageSize()
+	expect := x_pixels
+	result := p.ImageWidth()
+
+	if result != expect {
+		t.Error(result, expect)
+	}
+}
+
+func TestImageHeight(t *testing.T) {
+	x_pixels := 128
+	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
+
+	expect := int(float64(x_pixels) / (real(p.Size) / imag(p.Size)))
+	result := p.ImageHeight()
 
 	if result != expect {
 		t.Error(result, expect)
@@ -134,10 +146,10 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("json.Unmarshal Error: %v", err)
 	}
-	result_width := result.ImageSize().width
+	result_width := result.ImageWidth()
 
 	expect := NewPlaneInverted(complex(2, 2), complex(8, 4), 128)
-	expect_width := expect.ImageSize().width
+	expect_width := expect.ImageWidth()
 
 	if result.Origin != expect.Origin {
 		t.Error(result.Origin, expect.Origin)

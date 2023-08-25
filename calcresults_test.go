@@ -3,24 +3,26 @@ package main
 import (
 	"math"
 	"testing"
+
+	"github.com/brainsik/bae/plane"
 )
 
 func TestCalcResultsMerge(t *testing.T) {
 	dst := CalcResults{
-		ImagePoint{0, 0}: &CalcResult{},
-		ImagePoint{1, 1}: &CalcResult{complex(-1, 1), 1, true, false},
+		plane.ImagePoint{X: 0, Y: 0}: &CalcResult{},
+		plane.ImagePoint{X: 1, Y: 1}: &CalcResult{complex(-1, 1), 1, true, false},
 	}
 	src := CalcResults{
-		ImagePoint{0, 0}: &CalcResult{complex(-2, 2), 2, false, true},
-		ImagePoint{1, 1}: &CalcResult{complex(-3, 3), 3, false, true},
+		plane.ImagePoint{X: 0, Y: 0}: &CalcResult{complex(-2, 2), 2, false, true},
+		plane.ImagePoint{X: 1, Y: 1}: &CalcResult{complex(-3, 3), 3, false, true},
 	}
 
 	dst.Merge(src)
 	result := dst
 
 	expect := CalcResults{
-		ImagePoint{0, 0}: &CalcResult{0, 2, false, true},
-		ImagePoint{1, 1}: &CalcResult{complex(-1, 1), 4, true, true},
+		plane.ImagePoint{X: 0, Y: 0}: &CalcResult{0, 2, false, true},
+		plane.ImagePoint{X: 1, Y: 1}: &CalcResult{complex(-1, 1), 4, true, true},
 	}
 
 	for k := range result {
@@ -32,7 +34,7 @@ func TestCalcResultsMerge(t *testing.T) {
 
 func TestCalcResultsAdd(t *testing.T) {
 	crs := make(CalcResults)
-	pt := ImagePoint{4, 2}
+	pt := plane.ImagePoint{X: 4, Y: 2}
 	z := complex(7, 7)
 	val := uint(42)
 

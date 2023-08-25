@@ -3,6 +3,8 @@ package main
 import (
 	"math"
 	"time"
+
+	"github.com/brainsik/bae/plane"
 )
 
 const (
@@ -21,7 +23,7 @@ func TimestampMilli() string {
 }
 
 var klein = CalcParams{ //nolint:unused
-	Plane: NewPlaneInverted(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH),
+	Plane: plane.NewPlaneInverted(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH),
 
 	Style: Attractor,
 	ZF:    zf_klein,
@@ -30,7 +32,7 @@ var klein = CalcParams{ //nolint:unused
 	CF:  cf_luma_clip_percent,
 	CFP: ColorFuncParams{Clip: 10},
 
-	CalcArea: PlaneView{complex(0, 0), complex(0, 0)},
+	CalcArea: plane.PlaneView{Min: complex(0, 0), Max: complex(0, 0)},
 	RPoints:  1,
 	IPoints:  1,
 
@@ -39,7 +41,7 @@ var klein = CalcParams{ //nolint:unused
 }
 
 var klein2_allpts = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT), WIDTH),
+	Plane: plane.NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT), WIDTH),
 
 	Style: Attractor,
 	ZF:    zf_klein2,
@@ -49,7 +51,7 @@ var klein2_allpts = CalcParams{ //nolint:unused
 }.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{Clip: 8, Gamma: 2.0})
 
 var coldwave1 = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT), WIDTH),
+	Plane: plane.NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT), WIDTH),
 
 	Style: Attractor,
 	ZF:    zf_klein,
@@ -58,7 +60,7 @@ var coldwave1 = CalcParams{ //nolint:unused
 	CF:  cf_luma_clip_value,
 	CFP: ColorFuncParams{Clip: math.Pow(2, 6)},
 
-	CalcArea: PlaneView{complex(-0.53, -0.001), complex(-0.46, 0.499)},
+	CalcArea: plane.PlaneView{Min: complex(-0.53, -0.001), Max: complex(-0.46, 0.499)},
 	RPoints:  8,
 	IPoints:  25000,
 
@@ -70,7 +72,7 @@ var coldwave1_allpts = coldwave1.NewAllPoints( //nolint:unused
 	16, cf_luma_clip_value, ColorFuncParams{Clip: math.Pow(2, 8)})
 
 var coldwave2 = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT), WIDTH),
+	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT), WIDTH),
 
 	Style: Attractor,
 	ZF:    zf_klein,
@@ -79,7 +81,7 @@ var coldwave2 = CalcParams{ //nolint:unused
 	CF:  cf_luma_clip_percent,
 	CFP: ColorFuncParams{Clip: 10},
 
-	CalcArea: PlaneView{complex(-0.5, -0.255), complex(-0.5, 0.505)},
+	CalcArea: plane.PlaneView{Min: complex(-0.5, -0.255), Max: complex(-0.5, 0.505)},
 	RPoints:  1,
 	IPoints:  3080,
 
@@ -88,7 +90,7 @@ var coldwave2 = CalcParams{ //nolint:unused
 }
 
 var burning_ship = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT), WIDTH),
+	Plane: plane.NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT), WIDTH),
 
 	Style: Mandelbrot,
 	ZF:    zf_burning_ship,
@@ -101,7 +103,7 @@ var burning_ship = CalcParams{ //nolint:unused
 }
 
 var julia_classic = CalcParams{ //nolint:unused
-	Plane: NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
+	Plane: plane.NewPlane(complex(0, 0), complex(4, 4*ASPECT), WIDTH),
 
 	Style: Julia,
 	ZF:    zf_mandelbrot,

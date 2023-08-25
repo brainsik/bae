@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"runtime"
 	"time"
+
+	"github.com/brainsik/bae/plane"
 )
 
 // CalcStyle is an enum representing the type of calculation that will be performed.
@@ -27,15 +29,15 @@ var CalcStyleName = map[int]string{
 // CalcPoint is the mapping between coordinate types.
 type CalcPoint struct {
 	Z  complex128
-	XY ImagePoint
+	XY plane.ImagePoint
 }
 
 // ColorResults maps image plane coordinates to a color.
-type ColorResults map[ImagePoint]color.NRGBA
+type ColorResults map[plane.ImagePoint]color.NRGBA
 
 // CalcParams contains all the parameters needed to generate an image.
 type CalcParams struct {
-	Plane *Plane
+	Plane *plane.Plane
 
 	Style CalcStyle
 	ZF    ZFunc
@@ -47,7 +49,7 @@ type CalcParams struct {
 	Iterations int
 	Limit      float64
 
-	CalcArea         PlaneView
+	CalcArea         plane.PlaneView
 	RPoints, IPoints int
 }
 
@@ -83,8 +85,8 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 		CFP:        cfp,
 		Iterations: iterations,
 		CalcArea:   cp.Plane.View,
-		RPoints:    cp.Plane.ImageSize().width,
-		IPoints:    cp.Plane.ImageSize().height,
+		RPoints:    cp.Plane.ImageWidth(),
+		IPoints:    cp.Plane.ImageHeight(),
 
 		// unchanged
 		Plane: cp.Plane,
@@ -125,9 +127,9 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 
 // MakeImageProblemSet returns a problem set representing every point in the image plane.
 func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
-	for x := 0; x < cp.Plane.ImageSize().width; x++ {
-		for y := 0; y < cp.Plane.ImageSize().height; y++ {
-			xy := ImagePoint{x: x, y: y}
+	for x := 0; x < cp.Plane.ImageWidth(); x++ {
+		for y := 0; y < cp.Plane.ImageHeight(); y++ {
+			xy := plane.ImagePoint{X: x, Y: y}
 			z := cp.Plane.PlanePoint(xy)
 			problems = append(problems, CalcPoint{Z: z, XY: xy})
 		}
@@ -141,8 +143,8 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	calc_id := fmt.Sprintf("%p", problems)
 	showed_progress := make(map[int]bool)
 
-	img_width := cp.Plane.ImageSize().width
-	img_height := cp.Plane.ImageSize().height
+	img_width := cp.Plane.ImageWidth()
+	img_height := cp.Plane.ImageHeight()
 
 	// rz_min, rz_max := real(cp.plane.view.min), real(cp.plane.view.max)
 	// iz_min, iz_max := imag(cp.plane.view.min), imag(cp.plane.view.max)
@@ -198,7 +200,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 
 			if cp.Style == Attractor {
 				// Only add to histogram if pixel is in the image plane.
-				if xy.x >= 0 && xy.x <= img_width && xy.y >= 0 && xy.y <= img_height {
+				if xy.X >= 0 && xy.X <= img_width && xy.Y >= 0 && xy.Y <= img_height {
 					histogram.Add(xy, z, 1)
 				}
 			} else {
@@ -295,7 +297,7 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	t_start := time.Now()
 	colors := cp.CF.F(histogram, cp.CFP)
 	for pt, rgba := range colors {
-		cp.Plane.Image.Set(pt.x, pt.y, rgba)
+		cp.Plane.Image.Set(pt.X, pt.Y, rgba)
 	}
 	fmt.Printf("Image processing took %dms\n", time.Since(t_start).Milliseconds())
 }
