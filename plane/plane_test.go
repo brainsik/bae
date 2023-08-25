@@ -6,6 +6,18 @@ import (
 	"testing"
 )
 
+func TestWithInverted(t *testing.T) {
+	p := NewPlane(complex(0, 0), complex(8, 4), 100)
+	pi := p.WithInverted()
+
+	if p != pi {
+		t.Fatalf("Expected planes to be the same object, they are not: %p %p", p, pi)
+	}
+	if !pi.Inverted {
+		t.Errorf("Expected the plane to be inverted, it is not.")
+	}
+}
+
 func TestImageWidth(t *testing.T) {
 	x_pixels := 128
 	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
@@ -35,7 +47,7 @@ func TestPlanePoint(t *testing.T) {
 	size := complex(1, 2)
 	x_pixels := 128
 	p := NewPlane(origin, size, x_pixels)
-	p_inverted := NewPlaneInverted(origin, size, x_pixels)
+	p_inverted := NewPlane(origin, size, x_pixels).WithInverted()
 
 	aspect := imag(size) / real(size)
 	y_pixels := int(float64(x_pixels) * aspect)
@@ -68,7 +80,7 @@ func TestImagePoint(t *testing.T) {
 	size := complex(2, 1)
 	x_pixels := 100
 	p := NewPlane(origin, size, x_pixels)
-	p_inverted := NewPlaneInverted(origin, size, x_pixels)
+	p_inverted := NewPlane(origin, size, x_pixels).WithInverted()
 
 	aspect := imag(size) / real(size)
 	y_pixels := int(float64(x_pixels) * aspect)
@@ -126,7 +138,7 @@ func TestPlaneJSONMarshaler(t *testing.T) {
 	origin := complex(2, 2)
 	size := complex(8, 4)
 	x_pixels := 128
-	p := NewPlaneInverted(origin, size, x_pixels)
+	p := NewPlane(origin, size, x_pixels).WithInverted()
 
 	result, err := json.Marshal(p)
 	if err != nil {
@@ -148,7 +160,7 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	}
 	result_width := result.ImageWidth()
 
-	expect := NewPlaneInverted(complex(2, 2), complex(8, 4), 128)
+	expect := NewPlane(complex(2, 2), complex(8, 4), 128).WithInverted()
 	expect_width := expect.ImageWidth()
 
 	if result.Origin != expect.Origin {

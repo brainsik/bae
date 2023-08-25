@@ -23,7 +23,7 @@ func TimestampMilli() string {
 }
 
 var klein = CalcParams{ //nolint:unused
-	Plane: plane.NewPlaneInverted(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH),
+	Plane: plane.NewPlane(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH).WithInverted(),
 
 	Style: Attractor,
 	ZF:    zf_klein,

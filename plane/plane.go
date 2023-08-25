@@ -78,8 +78,8 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	}
 }
 
-func NewPlaneInverted(origin, size complex128, x_pixels int) *Plane {
-	p := NewPlane(origin, size, x_pixels)
+// WithInverted returns the same Plane with Inverted true.
+func (p *Plane) WithInverted() *Plane {
 	p.Inverted = true
 	return p
 }
@@ -204,11 +204,8 @@ func (p *Plane) UnmarshalJSON(data []byte) error {
 	size := complex(v.Size[0], v.Size[1])
 	x_pixels := v.ImageSize[0]
 
-	if v.Inverted {
-		*p = *NewPlaneInverted(origin, size, x_pixels)
-	} else {
-		*p = *NewPlane(origin, size, x_pixels)
-	}
+	*p = *NewPlane(origin, size, x_pixels)
+	p.Inverted = v.Inverted
 
 	return nil
 }
