@@ -105,6 +105,11 @@ func (p *Plane) GetView() PlaneView {
 	return p.view
 }
 
+// IsInverted returns whether the complex plane is inverted.
+func (p *Plane) IsInverted() bool {
+	return p.inverted
+}
+
 // ToComplexPoint returns the point in the complex plane corresponding to the given point in the image plane.
 func (p *Plane) ToComplexPoint(px ImagePoint) complex128 {
 	if px.X < 0 || px.X > p.ImageWidth() {
