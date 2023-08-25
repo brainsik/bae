@@ -13,14 +13,14 @@ import (
 
 // Plane represents an area in the complex plane and it's corresponding graphical image.
 type Plane struct {
-	Origin, Size complex128
-	View         PlaneView
-	Inverted     bool
+	origin, size complex128
+	view         PlaneView
+	inverted     bool
 
 	r_step, i_step float64
 	x_step, y_step float64
 
-	Image *image.NRGBA
+	image *image.NRGBA
 }
 
 // PlaneView represents a rectangle in the complex plane. Min is the left-bottom point and max is the right-top point.
@@ -61,10 +61,10 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	draw.Draw(img, img.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 
 	return &Plane{
-		Origin:   origin,
-		Size:     size,
-		View:     view,
-		Inverted: false,
+		origin:   origin,
+		size:     size,
+		view:     view,
+		inverted: false,
 
 		// Points per pixel.
 		r_step: r_step,
@@ -74,30 +74,54 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 		x_step: x_step,
 		y_step: y_step,
 
-		Image: img,
+		image: img,
 	}
 }
 
 // WithInverted returns the same Plane with Inverted true.
 func (p *Plane) WithInverted() *Plane {
-	p.Inverted = true
+	p.inverted = true
 	return p
 }
 
 // NewOrigin returns a new Plane with the given size.
 func (p *Plane) NewOrigin(origin complex128) *Plane {
-	return NewPlane(origin, p.Size, p.ImageWidth())
+	new := NewPlane(origin, p.size, p.ImageWidth())
+	new.inverted = p.inverted
+	return new
 }
 
 // NewSize returns a new Plane with the given size.
 func (p *Plane) NewSize(size complex128) *Plane {
-	return NewPlane(p.Origin, size, p.ImageWidth())
+	new := NewPlane(p.origin, size, p.ImageWidth())
+	new.inverted = p.inverted
+	return new
 }
 
 func (p *Plane) String() string {
 	return fmt.Sprintf(
 		"Plane{Origin:%v, View:%v, Image:%dx%d}",
-		p.Origin, p.View, p.ImageWidth(), p.ImageHeight())
+		p.origin, p.view, p.ImageWidth(), p.ImageHeight())
+}
+
+// GetImage returns the image buffer.
+func (p *Plane) GetImage() *image.NRGBA {
+	return p.image
+}
+
+// GetOrigin returns the complex plane origin.
+func (p *Plane) GetOrigin() complex128 {
+	return p.origin
+}
+
+// GetView returns the complex plane bounds.
+func (p *Plane) GetSize() complex128 {
+	return p.size
+}
+
+// GetView returns the complex plane bounds.
+func (p *Plane) GetView() PlaneView {
+	return p.view
 }
 
 // PlanePoint returns the point in the complex plane corresponding to the given point in the image plane.
@@ -109,15 +133,15 @@ func (p *Plane) PlanePoint(px ImagePoint) complex128 {
 		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageHeight())
 	}
 
-	r := real(p.View.Min) + float64(px.X)*p.r_step
+	r := real(p.view.Min) + float64(px.X)*p.r_step
 
 	var i float64
-	if !p.Inverted {
+	if !p.inverted {
 		// i on the complex plane and y on the pixel plane increase in opposite directions
-		i = imag(p.View.Max) - float64(px.Y)*p.i_step
+		i = imag(p.view.Max) - float64(px.Y)*p.i_step
 	} else {
 		// leave inverted
-		i = imag(p.View.Min) + float64(px.Y)*p.i_step
+		i = imag(p.view.Min) + float64(px.Y)*p.i_step
 	}
 	return complex(r, i)
 }
@@ -144,11 +168,11 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	// }
 
 	// reorient view so min is complex(0,0)
-	z_adj := z - p.View.Min
+	z_adj := z - p.view.Min
 
 	x := int(math.Round(real(z_adj) * p.x_step))
 	y := int(math.Round(imag(z_adj) * p.y_step))
-	if !p.Inverted {
+	if !p.inverted {
 		// Flip y, it increases in the opposite direction as i.
 		y = p.ImageHeight() - y
 	}
@@ -156,27 +180,32 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 	return ImagePoint{x, y}
 }
 
-// Set sets the color in the image plane corresponding to the given complex plane point.
-func (p *Plane) Set(z complex128, rgba color.NRGBA) {
+// SetZColor sets the color in the image plane corresponding to the given plane point.
+func (p *Plane) SetZColor(z complex128, rgba color.NRGBA) {
 	xy := p.ImagePoint(z)
-	p.Image.Set(xy.X, xy.Y, rgba)
+	p.image.Set(xy.X, xy.Y, rgba)
+}
+
+// SetXYColor sets the color in the image plane corresponding to the given image point.
+func (p *Plane) SetXYColor(x, y int, rgba color.NRGBA) {
+	p.image.Set(x, y, rgba)
 }
 
 // ImageWidth returns the image width.
 func (p *Plane) ImageWidth() int {
-	return p.Image.Rect.Dx()
+	return p.image.Rect.Dx()
 }
 
 // ImageHeight returns the image width.
 func (p *Plane) ImageHeight() int {
-	return p.Image.Rect.Dy()
+	return p.image.Rect.Dy()
 }
 
 // WritePNG outputs a PNG file at the given path.
 func (p *Plane) WritePNG(path string) {
 	png_file, _ := os.Create(path)
 	penc := png.Encoder{CompressionLevel: png.BestCompression}
-	if err := penc.Encode(png_file, p.Image); err != nil {
+	if err := penc.Encode(png_file, p.image); err != nil {
 		fmt.Printf("Error encoding PNG: %v\n", err)
 	}
 	fmt.Printf("Wrote %s\n", png_file.Name())
@@ -195,10 +224,10 @@ type planeJSON struct {
 func (p *Plane) MarshalJSON() ([]byte, error) {
 	return json.Marshal(
 		planeJSON{
-			Origin:    [2]float64{real(p.Origin), imag(p.Origin)},
-			Size:      [2]float64{real(p.Size), imag(p.Size)},
-			View:      [4]float64{real(p.View.Min), imag(p.View.Min), real(p.View.Max), imag(p.View.Max)},
-			Inverted:  p.Inverted,
+			Origin:    [2]float64{real(p.origin), imag(p.origin)},
+			Size:      [2]float64{real(p.size), imag(p.size)},
+			View:      [4]float64{real(p.view.Min), imag(p.view.Min), real(p.view.Max), imag(p.view.Max)},
+			Inverted:  p.inverted,
 			ImageSize: [2]int{p.ImageWidth(), p.ImageHeight()},
 		})
 }
@@ -215,7 +244,7 @@ func (p *Plane) UnmarshalJSON(data []byte) error {
 	x_pixels := v.ImageSize[0]
 
 	*p = *NewPlane(origin, size, x_pixels)
-	p.Inverted = v.Inverted
+	p.inverted = v.Inverted
 
 	return nil
 }

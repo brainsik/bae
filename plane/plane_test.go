@@ -13,7 +13,7 @@ func TestWithInverted(t *testing.T) {
 	if p != pi {
 		t.Fatalf("Expected planes to be the same object, they are not: %p %p", p, pi)
 	}
-	if !pi.Inverted {
+	if !pi.inverted {
 		t.Errorf("Expected the plane to be inverted, it is not.")
 	}
 }
@@ -24,7 +24,7 @@ func TestNewOrigin(t *testing.T) {
 
 	expect_origin := origin + complex(1, -1)
 	p2 := p1.NewOrigin(expect_origin)
-	result_origin := p2.Origin
+	result_origin := p2.origin
 
 	if p1 == p2 {
 		t.Fatalf("Expected a new plane to be created.")
@@ -42,7 +42,7 @@ func TestNewSize(t *testing.T) {
 	expect_size := size - complex(4, 0)
 	expect_y_pixels := int(float64(x_pixels) * (real(expect_size) / imag(expect_size)))
 	p2 := p1.NewSize(expect_size)
-	result_size := p2.Size
+	result_size := p2.size
 	result_y_pixels := p2.ImageHeight()
 
 	if p1 == p2 {
@@ -53,6 +53,19 @@ func TestNewSize(t *testing.T) {
 	}
 	if result_y_pixels != expect_y_pixels {
 		t.Errorf("Expected new image height to be %v, got %v", expect_y_pixels, result_y_pixels)
+	}
+}
+
+func TestGetView(t *testing.T) {
+	p := NewPlane(complex(1, 1), complex(2, 2), 100)
+	expect := PlaneView{Min: complex(0, 0), Max: complex(2, 2)}
+
+	result := p.GetView()
+	if &(p.view) == &result {
+		t.Fatalf("Expected and result should be different objects.")
+	}
+	if result != expect {
+		t.Errorf("Expected %v, got %v", expect, result)
 	}
 }
 
@@ -72,7 +85,7 @@ func TestImageHeight(t *testing.T) {
 	x_pixels := 128
 	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
 
-	expect := int(float64(x_pixels) / (real(p.Size) / imag(p.Size)))
+	expect := int(float64(x_pixels) / (real(p.size) / imag(p.size)))
 	result := p.ImageHeight()
 
 	if result != expect {
@@ -201,16 +214,16 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	expect := NewPlane(complex(2, 2), complex(8, 4), 128).WithInverted()
 	expect_width := expect.ImageWidth()
 
-	if result.Origin != expect.Origin {
-		t.Error(result.Origin, expect.Origin)
+	if result.origin != expect.origin {
+		t.Error(result.origin, expect.origin)
 	}
-	if result.Size != expect.Size {
-		t.Error(result.Size, expect.Size)
+	if result.size != expect.size {
+		t.Error(result.size, expect.size)
 	}
 	if result_width != expect_width {
 		t.Error(result_width, expect_width)
 	}
 	if result_width != expect_width {
-		t.Error(result.Inverted, expect.Inverted)
+		t.Error(result.inverted, expect.inverted)
 	}
 }

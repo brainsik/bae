@@ -84,7 +84,7 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 		CF:         cf,
 		CFP:        cfp,
 		Iterations: iterations,
-		CalcArea:   cp.Plane.View,
+		CalcArea:   cp.Plane.GetView(),
 		RPoints:    cp.Plane.ImageWidth(),
 		IPoints:    cp.Plane.ImageHeight(),
 
@@ -297,7 +297,7 @@ func (cp *CalcParams) ColorImage(concurrency int) {
 	t_start := time.Now()
 	colors := cp.CF.F(histogram, cp.CFP)
 	for pt, rgba := range colors {
-		cp.Plane.Image.Set(pt.X, pt.Y, rgba)
+		cp.Plane.SetXYColor(pt.X, pt.Y, rgba)
 	}
 	fmt.Printf("Image processing took %dms\n", time.Since(t_start).Milliseconds())
 }
