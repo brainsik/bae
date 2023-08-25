@@ -39,18 +39,19 @@ type ColorResults map[plane.ImagePoint]color.NRGBA
 type CalcParams struct {
 	Plane *plane.Plane
 
-	Style CalcStyle
-	ZF    ZFunc
-	C     complex128
-
-	CF  ColorFunc
-	CFP ColorFuncParams
-
+	Style      CalcStyle
+	ZF         ZFunc
+	C          complex128
 	Iterations int
 	Limit      float64
 
 	CalcArea         plane.PlaneView
 	RPoints, IPoints int
+
+	Concurrency int
+
+	CF  ColorFunc
+	CFP ColorFuncParams
 }
 
 func (cs CalcStyle) String() string {
@@ -65,10 +66,40 @@ func (cp *CalcParams) String() string {
 	return fmt.Sprintf(
 		"CalcParams{\n%v\nStyle: %v\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
 			"calc area: %v\n"+
-			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n}",
+			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n"+
+			"concurrency: %d\n}",
 		cp.Plane, cp.Style, cp.ZF, cp.CF, cp.CFP, cp.C, cp.Iterations, cp.Limit, cp.CalcArea,
 		cp.RPoints, real(cp.CalcArea.Min), real(cp.CalcArea.Max), cp.CalcArea.RealLen(),
-		cp.IPoints, imag(cp.CalcArea.Min), imag(cp.CalcArea.Max), cp.CalcArea.ImagLen())
+		cp.IPoints, imag(cp.CalcArea.Min), imag(cp.CalcArea.Max), cp.CalcArea.ImagLen(),
+		cp.Concurrency)
+}
+
+// NewCalcParams returns a new CalcParams object based on the given one.
+// Some defaults are set for zeroed fields.
+func NewCalcParams(cp CalcParams) *CalcParams {
+	limit := cp.Limit
+	if limit == 0 {
+		limit = cmplx.Abs(cp.Plane.GetSize())
+	}
+
+	return &CalcParams{
+		Plane: cp.Plane,
+
+		Style:      cp.Style,
+		ZF:         cp.ZF,
+		C:          cp.C,
+		Iterations: cp.Iterations,
+		Limit:      limit,
+
+		CalcArea: cp.CalcArea,
+		RPoints:  cp.RPoints,
+		IPoints:  cp.IPoints,
+
+		Concurrency: cp.Concurrency,
+
+		CF:  cp.CF,
+		CFP: cp.CFP,
+	}
 }
 
 // NewAllPoints is a helper function that sets the calculation area of the
@@ -89,10 +120,11 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 		IPoints:    cp.Plane.ImageHeight(),
 
 		// unchanged
-		Plane: cp.Plane,
-		ZF:    cp.ZF,
-		C:     cp.C,
-		Limit: cp.Limit,
+		Plane:       cp.Plane,
+		ZF:          cp.ZF,
+		C:           cp.C,
+		Limit:       cp.Limit,
+		Concurrency: cp.Concurrency,
 	}
 }
 
@@ -229,8 +261,9 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 }
 
 // CalculateParallel breaks the problem set into chunks and runs conncurrent Calculate routines.
-func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults) {
-	if concurrency == 0 {
+func (cp *CalcParams) CalculateParallel() (histogram CalcResults) {
+	concurrency := cp.Concurrency
+	if cp.Concurrency == 0 {
 		concurrency = int(1.5 * float64(runtime.NumCPU()))
 	}
 
@@ -290,8 +323,8 @@ func (cp *CalcParams) CalculateParallel(concurrency int) (histogram CalcResults)
 }
 
 // ColorImage sets image colors based on the results from Calculate.
-func (cp *CalcParams) ColorImage(concurrency int) {
-	histogram := cp.CalculateParallel(concurrency)
+func (cp *CalcParams) ColorImage() {
+	histogram := cp.CalculateParallel()
 	histogram.PrintStats()
 
 	t_start := time.Now()
