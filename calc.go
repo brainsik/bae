@@ -116,7 +116,7 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 		i := imag(cp.CalcArea.Min)
 		for i_pt := 0; i_pt < cp.IPoints; i_pt++ {
 			z := complex(r, i)
-			xy := cp.Plane.ImagePoint(z)
+			xy := cp.Plane.ToImagePoint(z)
 			problems = append(problems, CalcPoint{Z: z, XY: xy})
 			i += i_step
 		}
@@ -130,7 +130,7 @@ func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
 	for x := 0; x < cp.Plane.ImageWidth(); x++ {
 		for y := 0; y < cp.Plane.ImageHeight(); y++ {
 			xy := plane.ImagePoint{X: x, Y: y}
-			z := cp.Plane.PlanePoint(xy)
+			z := cp.Plane.ToComplexPoint(xy)
 			problems = append(problems, CalcPoint{Z: z, XY: xy})
 		}
 	}
@@ -168,7 +168,7 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 			total_its++
 
 			z = f_zc(z, c)
-			xy := cp.Plane.ImagePoint(z)
+			xy := cp.Plane.ToImagePoint(z)
 			// if real(z) < rz_min || real(z) > rz_max || imag(z) < iz_min || imag(z) > iz_max {
 			// 	continue
 			// }

@@ -105,13 +105,13 @@ func (p *Plane) GetView() PlaneView {
 	return p.view
 }
 
-// PlanePoint returns the point in the complex plane corresponding to the given point in the image plane.
-func (p *Plane) PlanePoint(px ImagePoint) complex128 {
+// ToComplexPoint returns the point in the complex plane corresponding to the given point in the image plane.
+func (p *Plane) ToComplexPoint(px ImagePoint) complex128 {
 	if px.X < 0 || px.X > p.ImageWidth() {
-		fmt.Printf("Warning: PlanePoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageWidth())
+		fmt.Printf("Warning: ToComplexPoint(%v) x coordinate is outside image bounds: 0 -> %v\n", px, p.ImageWidth())
 	}
 	if px.Y < 0 || px.Y > p.ImageHeight() {
-		fmt.Printf("Warning: PlanePoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageHeight())
+		fmt.Printf("Warning: ToComplexPoint(%v) y coordinate is outside image bounds: 0 -> %v\n", px, p.ImageHeight())
 	}
 
 	r := real(p.view.Min) + float64(px.X)*p.r_step
@@ -137,7 +137,7 @@ func (ip ImagePoint) String() string {
 }
 
 // PlanePoint returns the point in the image plane corresponding to the given point in the complex plane.
-func (p *Plane) ImagePoint(z complex128) ImagePoint {
+func (p *Plane) ToImagePoint(z complex128) ImagePoint {
 	// rz_min, rz_max := real(p.view.min), real(p.view.max)
 	// if real(z) < rz_min || real(z) > rz_max {
 	// 	fmt.Printf("Warning: ImagePoint(%v) real value is outside plane bounds: %v -> %v\n", z, rz_min, rz_max)
@@ -163,7 +163,7 @@ func (p *Plane) ImagePoint(z complex128) ImagePoint {
 
 // SetZColor sets the color in the image plane corresponding to the given plane point.
 func (p *Plane) SetZColor(z complex128, rgba color.NRGBA) {
-	xy := p.ImagePoint(z)
+	xy := p.ToImagePoint(z)
 	p.image.Set(xy.X, xy.Y, rgba)
 }
 

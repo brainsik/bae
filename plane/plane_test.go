@@ -93,7 +93,7 @@ func TestImageHeight(t *testing.T) {
 	}
 }
 
-func TestPlanePoint(t *testing.T) {
+func TestToComplexPoint(t *testing.T) {
 	origin := complex(-1, 1)
 	size := complex(1, 2)
 	x_pixels := 128
@@ -118,7 +118,7 @@ func TestPlanePoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
-			result := tc.plane.PlanePoint(tc.point)
+			result := tc.plane.ToComplexPoint(tc.point)
 			if result != tc.expect {
 				t.Error(result, tc.expect)
 			}
@@ -126,7 +126,7 @@ func TestPlanePoint(t *testing.T) {
 	}
 }
 
-func TestImagePoint(t *testing.T) {
+func TestToImagePoint(t *testing.T) {
 	origin := complex(-1, 1)
 	size := complex(2, 1)
 	x_pixels := 100
@@ -151,7 +151,7 @@ func TestImagePoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
-			result := tc.plane.ImagePoint(tc.point)
+			result := tc.plane.ToImagePoint(tc.point)
 			if result != tc.expect {
 				t.Error(result, tc.expect)
 			}
@@ -159,7 +159,7 @@ func TestImagePoint(t *testing.T) {
 	}
 }
 
-func TestImageToPlaneToImagePoint(t *testing.T) {
+func TestToImageToComplexToImagePoint(t *testing.T) {
 	origin := complex(0, 0)
 	// Use numbers that ensure points to pixel ratio does not divide cleanly
 	size := complex(1.59, 1.59)
@@ -176,8 +176,8 @@ func TestImageToPlaneToImagePoint(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("%s", tc.name), func(t *testing.T) { //nolint:gosimple
-			z := p.PlanePoint(tc.point)
-			result := p.ImagePoint(z)
+			z := p.ToComplexPoint(tc.point)
+			result := p.ToImagePoint(z)
 			if result != tc.point {
 				t.Error(result, tc.point)
 			}
