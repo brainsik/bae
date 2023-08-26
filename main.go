@@ -7,12 +7,12 @@ import (
 )
 
 const (
-	WIDTH  = 2560
+	WIDTH  = 1200
 	ASPECT = 0.625
 )
 
 func main() {
-	params := klein2_allpts
+	params := coldwave2
 	params.ColorImage()
 	params.Plane.WritePNG("image.png")
 }
