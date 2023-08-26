@@ -260,6 +260,10 @@ func (cp *CalcParams) Calculate(problems []CalcPoint) (histogram CalcResults) {
 	return
 }
 
+func TimestampMilli() string {
+	return time.Now().Format(time.StampMilli)
+}
+
 // CalculateParallel breaks the problem set into chunks and runs conncurrent Calculate routines.
 func (cp *CalcParams) CalculateParallel() (histogram CalcResults) {
 	concurrency := cp.Concurrency

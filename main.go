@@ -2,7 +2,6 @@ package main
 
 import (
 	"math"
-	"time"
 
 	"github.com/brainsik/bae/plane"
 )
@@ -16,10 +15,6 @@ func main() {
 	params := klein2_allpts
 	params.ColorImage()
 	params.Plane.WritePNG("image.png")
-}
-
-func TimestampMilli() string {
-	return time.Now().Format(time.StampMilli)
 }
 
 var klein = NewCalcParams(CalcParams{ //nolint:unused
