@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"math/cmplx"
 	"math/rand"
 	"runtime"
@@ -130,6 +131,8 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 
 // MakePlaneProblemSet returns a problem set for an even distribution of points in the calc_area.
 func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
+	t_start := time.Now()
+
 	// TODO: Return an Error instead?
 	if cp.CalcArea.RealLen() > 0 && cp.RPoints <= 1 {
 		panic("Undefined how to make a single point problem on a non-single point line." +
@@ -154,11 +157,14 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 		}
 		r += r_step
 	}
+
+	log.Printf("Took %dms to make problem set\n", time.Since(t_start).Milliseconds())
 	return
 }
 
 // MakeImageProblemSet returns a problem set representing every point in the image plane.
 func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
+	t_start := time.Now()
 	for x := 0; x < cp.Plane.ImageWidth(); x++ {
 		for y := 0; y < cp.Plane.ImageHeight(); y++ {
 			xy := plane.ImagePoint{X: x, Y: y}
@@ -166,6 +172,7 @@ func (cp *CalcParams) MakeImageProblemSet() (problems []CalcPoint) {
 			problems = append(problems, CalcPoint{Z: z, XY: xy})
 		}
 	}
+	log.Printf("Took %dms to make problem set\n", time.Since(t_start).Milliseconds())
 	return
 }
 
