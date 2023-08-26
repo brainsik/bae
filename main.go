@@ -17,22 +17,24 @@ func main() {
 	params.Plane.WritePNG("image.png")
 }
 
+// Single orbit attractor.
 var klein = NewCalcParams(CalcParams{ //nolint:unused
 	Plane: plane.NewPlane(complex(-0.1, -0.54), complex(1.6*1/ASPECT, 1.6), WIDTH).WithInverted(),
 
 	Style:      Attractor,
 	ZF:         zf_klein,
 	C:          complex(-0.172, -1.136667),
-	Iterations: int(math.Pow(2, 24)),
+	Iterations: int(math.Pow(2, 20)),
 
-	CalcArea: plane.PlaneView{Min: complex(0, 0), Max: complex(0, 0)},
-	RPoints:  1,
-	IPoints:  1,
+	CalcArea: plane.PlaneView{Min: complex(-0.4, -0.1), Max: complex(0.4, 0.1)},
+	RPoints:  3,
+	IPoints:  3,
 
 	CF:  cf_luma_clip_percent,
 	CFP: ColorFuncParams{Clip: 10},
 })
 
+// Multi-orbit map.
 var klein2_allpts = NewCalcParams(CalcParams{ //nolint:unused
 	Plane: plane.NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT), WIDTH),
 
@@ -41,6 +43,7 @@ var klein2_allpts = NewCalcParams(CalcParams{ //nolint:unused
 	C:     complex(-0.172, -1.136667),
 }.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{Clip: 8, Gamma: 2.0}))
 
+// Multi-orbit map.
 var coldwave1 = NewCalcParams(CalcParams{ //nolint:unused
 	Plane: plane.NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT), WIDTH),
 
@@ -57,9 +60,11 @@ var coldwave1 = NewCalcParams(CalcParams{ //nolint:unused
 	CFP: ColorFuncParams{Clip: math.Pow(2, 6)},
 })
 
+// Multi-orbit map.
 var coldwave1_allpts = NewCalcParams(coldwave1.NewAllPoints( //nolint:unused
 	16, cf_luma_clip_value, ColorFuncParams{Clip: math.Pow(2, 8)}))
 
+// Single orbit attractor.
 var coldwave2 = NewCalcParams(CalcParams{ //nolint:unused
 	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT), WIDTH),
 
