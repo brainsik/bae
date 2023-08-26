@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"math"
 	"math/cmplx"
 	"math/rand"
 	"runtime"
@@ -67,7 +68,7 @@ func (cp *CalcParams) String() string {
 	return fmt.Sprintf(
 		"CalcParams{\n%v\nStyle: %v\n%v\n%v\n%v\nc: %v\niterations: %v\nlimit: %v\n"+
 			"calc area: %v\n"+
-			"real points: %v (%v -> %v | %v)\nimag points: %v (%v -> %v | %v)\n"+
+			"real points: %v in (%v -> %v | %v)\nimag points: %v in (%vi -> %vi | %vi)\n"+
 			"concurrency: %d\n}",
 		cp.Plane, cp.Style, cp.ZF, cp.CF, cp.CFP, cp.C, cp.Iterations, cp.Limit, cp.CalcArea,
 		cp.RPoints, real(cp.CalcArea.Min), real(cp.CalcArea.Max), cp.CalcArea.RealLen(),
@@ -131,21 +132,15 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 
 // MakePlaneProblemSet returns a problem set for an even distribution of points in the calc_area.
 func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
+	if cp.RPoints <= 0 || cp.IPoints <= 0 {
+		fmt.Printf("RPoints and IPoints need to be non-zero: R:%v, I:%v", cp.RPoints, cp.IPoints)
+		return
+	}
+
+	r_step := cp.CalcArea.RealLen() / math.Max(float64(cp.RPoints-1), 1)
+	i_step := cp.CalcArea.ImagLen() / math.Max(float64(cp.IPoints-1), 1)
+
 	t_start := time.Now()
-
-	// TODO: Return an Error instead?
-	if cp.CalcArea.RealLen() > 0 && cp.RPoints <= 1 {
-		panic("Undefined how to make a single point problem on a non-single point line." +
-			"Either add more points or set the length of real(calc_area) to be a single point.")
-	}
-	if cp.CalcArea.ImagLen() > 0 && cp.IPoints <= 1 {
-		panic("Undefined how to make a single point problem on a non-single point line." +
-			"Either add more points or set the length of imag(calc_area) to be a single point.")
-	}
-
-	r_step := cp.CalcArea.RealLen() / float64(cp.RPoints-1)
-	i_step := cp.CalcArea.ImagLen() / float64(cp.IPoints-1)
-
 	r := real(cp.CalcArea.Min)
 	for r_pt := 0; r_pt < cp.RPoints; r_pt++ {
 		i := imag(cp.CalcArea.Min)
@@ -157,7 +152,6 @@ func (cp *CalcParams) MakePlaneProblemSet() (problems []CalcPoint) {
 		}
 		r += r_step
 	}
-
 	log.Printf("Took %dms to make problem set\n", time.Since(t_start).Milliseconds())
 	return
 }
@@ -312,8 +306,8 @@ func (cp *CalcParams) CalculateParallel() (histogram CalcResults) {
 		}
 
 		p_chunk := problems[chunk_start:chunk_end]
-		fmt.Printf("[%v] 🚀 Launch %p | orbits %d - %d\n",
-			time.Now().Format(time.StampMilli), p_chunk, chunk_start, chunk_end)
+		fmt.Printf("[%v] 🚀 Launch %p | %d orbits\n",
+			time.Now().Format(time.StampMilli), p_chunk, len(p_chunk))
 		go func() {
 			result_ch <- cp.Calculate(p_chunk)
 		}()

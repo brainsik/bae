@@ -7,19 +7,6 @@ import (
 	"github.com/brainsik/bae/plane"
 )
 
-func TestMakePlaneProblemSetSinglePointPanic(t *testing.T) {
-	params := CalcParams{
-		Plane:    plane.NewPlane(complex(0, 0), complex(2, 2), 10),
-		CalcArea: plane.PlaneView{Min: complex(-1, -1), Max: complex(1, 1)},
-		RPoints:  1,
-		IPoints:  1,
-	}
-
-	defer func() { _ = recover() }()
-	params.MakePlaneProblemSet() // should panic
-	t.Errorf("Expected MakeAttractorProblemSet to panic.")
-}
-
 func NewPlane(c1, c2 complex128, i int) {
 	panic("unimplemented")
 }
