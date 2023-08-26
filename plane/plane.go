@@ -39,9 +39,8 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 	img := image.NewNRGBA(
 		image.Rectangle{image.Point{0, 0}, image.Point{x_pixels, y_pixels}})
-	draw.Draw(img, img.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 
-	return &Plane{
+	p := Plane{
 		origin:   origin,
 		size:     size,
 		view:     view,
@@ -57,6 +56,8 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 		image: img,
 	}
+	p.ClearImage()
+	return &p
 }
 
 // WithInverted returns the same Plane with Inverted true.
@@ -83,6 +84,10 @@ func (p *Plane) String() string {
 	return fmt.Sprintf(
 		"Plane{Origin:%v, View:%v, Image:%dx%d}",
 		p.origin, p.view, p.ImageWidth(), p.ImageHeight())
+}
+
+func (p *Plane) ClearImage() {
+	draw.Draw(p.image, p.image.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 }
 
 // GetImage returns the image buffer.
