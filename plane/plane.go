@@ -26,8 +26,8 @@ type Plane struct {
 // NewPlane returns a new Plane.
 func NewPlane(origin, size complex128, x_pixels int) *Plane {
 	view := PlaneView{origin - size/2, origin + size/2}
-	_aspect_ratio := imag(size) / real(size)
-	y_pixels := int(float64(x_pixels) * _aspect_ratio)
+	_inv_aspect_ratio := imag(size) / real(size)
+	y_pixels := int(float64(x_pixels) * _inv_aspect_ratio)
 
 	// Points per pixel.
 	r_step := real(size) / float64(x_pixels)
