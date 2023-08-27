@@ -56,11 +56,11 @@ func TestNewSize(t *testing.T) {
 	}
 }
 
-func TestGetView(t *testing.T) {
+func TestView(t *testing.T) {
 	p := NewPlane(complex(1, 1), complex(2, 2), 100)
 	expect := PlaneView{Min: complex(0, 0), Max: complex(2, 2)}
 
-	result := p.GetView()
+	result := p.View()
 	if &(p.view) == &result {
 		t.Fatalf("Expected and result should be different objects.")
 	}

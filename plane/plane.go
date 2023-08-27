@@ -56,7 +56,7 @@ func NewPlane(origin, size complex128, x_pixels int) *Plane {
 
 		image: img,
 	}
-	p.ClearImage()
+	p.ResetImage()
 	return &p
 }
 
@@ -66,14 +66,14 @@ func (p *Plane) WithInverted() *Plane {
 	return p
 }
 
-// NewOrigin returns a new Plane with the given size.
+// NewOrigin returns a new Plane with the given origin.
 func (p *Plane) NewOrigin(origin complex128) *Plane {
 	new := NewPlane(origin, p.size, p.ImageWidth())
 	new.inverted = p.inverted
 	return new
 }
 
-// NewSize returns a new Plane with the given size.
+// NewSize returns a new Plane with the given complex plane size.
 func (p *Plane) NewSize(size complex128) *Plane {
 	new := NewPlane(p.origin, size, p.ImageWidth())
 	new.inverted = p.inverted
@@ -86,27 +86,28 @@ func (p *Plane) String() string {
 		p.origin, p.view, p.ImageWidth(), p.ImageHeight())
 }
 
-func (p *Plane) ClearImage() {
+// ResetImage resets the image to all black.
+func (p *Plane) ResetImage() {
 	draw.Draw(p.image, p.image.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
 }
 
-// GetImage returns the image buffer.
-func (p *Plane) GetImage() *image.NRGBA {
+// Image returns the image buffer.
+func (p *Plane) Image() *image.NRGBA {
 	return p.image
 }
 
-// GetOrigin returns the complex plane origin.
-func (p *Plane) GetOrigin() complex128 {
+// Origin returns the complex plane origin.
+func (p *Plane) Origin() complex128 {
 	return p.origin
 }
 
-// GetView returns the complex plane bounds.
-func (p *Plane) GetSize() complex128 {
+// Size returns the complex plane size.
+func (p *Plane) Size() complex128 {
 	return p.size
 }
 
-// GetView returns the complex plane bounds.
-func (p *Plane) GetView() PlaneView {
+// View returns the complex plane bounds.
+func (p *Plane) View() PlaneView {
 	return p.view
 }
 

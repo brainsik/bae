@@ -81,7 +81,7 @@ func (cp *CalcParams) String() string {
 func NewCalcParams(cp CalcParams) *CalcParams {
 	limit := cp.Limit
 	if limit == 0 {
-		limit = cmplx.Abs(cp.Plane.GetSize())
+		limit = cmplx.Abs(cp.Plane.Size())
 	}
 
 	return &CalcParams{
@@ -117,7 +117,7 @@ func (cp CalcParams) NewAllPoints(iterations int, cf ColorFunc, cfp ColorFuncPar
 		CF:         cf,
 		CFP:        cfp,
 		Iterations: iterations,
-		CalcArea:   cp.Plane.GetView(),
+		CalcArea:   cp.Plane.View(),
 		RPoints:    cp.Plane.ImageWidth(),
 		IPoints:    cp.Plane.ImageHeight(),
 
