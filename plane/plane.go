@@ -80,6 +80,18 @@ func (p *Plane) NewSize(size complex128) *Plane {
 	return new
 }
 
+// NewImageSize returns a new Plane with the given image size.
+func (p *Plane) NewImageSize(width, height int) *Plane {
+	aspect := float64(width) / float64(height)
+	size := complex(imag(p.size)*aspect, imag(p.size))
+	if p.ImageWidth() == width {
+		size = complex(real(p.size), real(p.size)*(1.0/aspect))
+	}
+	new := NewPlane(p.origin, size, width)
+	new.inverted = p.inverted
+	return new
+}
+
 func (p *Plane) String() string {
 	return fmt.Sprintf(
 		"Plane{Origin:%v, View:%v, Image:%dx%d}",
@@ -109,6 +121,11 @@ func (p *Plane) Size() complex128 {
 // View returns the complex plane bounds.
 func (p *Plane) View() PlaneView {
 	return p.view
+}
+
+// Aspect returns the aspect ratio (width/height) of the planes.
+func (p *Plane) Aspect() float64 {
+	return real(p.size) / imag(p.size)
 }
 
 // IsInverted returns whether the complex plane is inverted.
