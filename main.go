@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math"
 
 	"github.com/brainsik/bae/plane"
@@ -12,6 +13,8 @@ const (
 )
 
 func main() {
+	log.SetFlags(log.Lshortfile)
+
 	params := coldwave2
 	params.ColorImage()
 	params.Plane.WritePNG("image.png")
