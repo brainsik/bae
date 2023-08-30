@@ -19,7 +19,7 @@ func (zf ZFunc) String() string {
 var zf_burning_ship = ZFunc{ //nolint:unused
 	Desc: `Burning Ship: (|x| + i|y|)^2 + c`,
 	F: func(z, c complex128) complex128 {
-		return cmplx.Pow(-complex(math.Abs(real(z)), math.Abs(imag(z))), 2.0) - c
+		return cmplx.Pow(complex(math.Abs(real(z)), math.Abs(imag(z))), 2.0) + c
 	},
 }
 

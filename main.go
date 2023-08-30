@@ -33,7 +33,7 @@ var klein = NewCalcParams(CalcParams{ //nolint:unused
 	RPoints:  3,
 	IPoints:  3,
 
-	CF:  cf_luma_clip_percent,
+	CF:  cf_luma_clip_percent_max,
 	CFP: ColorFuncParams{Clip: 10},
 })
 
@@ -44,7 +44,7 @@ var klein2_allpts = NewCalcParams(CalcParams{ //nolint:unused
 	Style: Attractor,
 	ZF:    zf_klein2,
 	C:     complex(-0.172, -1.136667),
-}.NewAllPoints(128, cf_luma_clip_percent, ColorFuncParams{Clip: 8, Gamma: 2.0}))
+}.NewAllPoints(128, cf_luma_clip_percent_max, ColorFuncParams{Clip: 8, Gamma: 2.0}))
 
 // Multi-orbit map.
 var coldwave1 = NewCalcParams(CalcParams{ //nolint:unused
@@ -80,19 +80,20 @@ var coldwave2 = NewCalcParams(CalcParams{ //nolint:unused
 	RPoints:  1,
 	IPoints:  3080,
 
-	CF:  cf_luma_clip_percent,
+	CF:  cf_luma_clip_percent_max,
 	CFP: ColorFuncParams{Clip: 10},
 })
 
-var burning_ship = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT_INV), WIDTH),
+var coldwave2_julia = NewCalcParams(CalcParams{ //nolint:unused
+	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT_INV), WIDTH),
 
-	Style:      Mandelbrot,
-	ZF:         zf_burning_ship,
-	Iterations: 1024,
+	Style:      Julia,
+	ZF:         zf_klein,
+	C:          complex(-0.1278, 0.0),
+	Iterations: 96,
 
-	CF:  cf_escaped_clip_percent,
-	CFP: ColorFuncParams{Clip: 20},
+	CF:  cf_escaped_clip_percent_max,
+	CFP: ColorFuncParams{Clip: 50},
 })
 
 var julia_classic = NewCalcParams(CalcParams{ //nolint:unused
@@ -103,6 +104,29 @@ var julia_classic = NewCalcParams(CalcParams{ //nolint:unused
 	C:          complex(0.285, 0.01),
 	Iterations: 493,
 
-	CF:  cf_escaped_clip_percent,
-	CFP: ColorFuncParams{Clip: 50, Gamma: 2.8},
+	CF:  cf_escaped_clip_percent_max,
+	CFP: ColorFuncParams{Clip: 50},
+})
+
+var burning_ship = NewCalcParams(CalcParams{ //nolint:unused
+	// Plane: plane.NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-1.765, -0.035), complex(0.15, 0.15*ASPECT_INV), WIDTH).WithInverted(),
+
+	Style:      Mandelbrot,
+	ZF:         zf_burning_ship,
+	Iterations: 256,
+
+	CF:  cf_escaped_clip_percent_avg,
+	CFP: ColorFuncParams{Clip: 400},
+})
+
+var mandelbrot = NewCalcParams(CalcParams{ //nolint:unused
+	Plane: plane.NewPlane(complex(-0.5, 0), complex(4, 4*ASPECT_INV), WIDTH),
+
+	Style:      Mandelbrot,
+	ZF:         zf_mandelbrot,
+	Iterations: 256,
+
+	CF:  cf_escaped_clip_percent_avg,
+	CFP: ColorFuncParams{Clip: 400},
 })

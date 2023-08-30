@@ -63,6 +63,18 @@ func TestCalcResultsAdd(t *testing.T) {
 	}
 }
 
+func TestCalcResultsMaxEscaped(t *testing.T) {
+	crs := CalcResults{
+		plane.ImagePoint{X: 0, Y: 0}: &CalcResult{complex(0, 0), 10, true, false},
+		plane.ImagePoint{X: 1, Y: 1}: &CalcResult{complex(1, 1), 20, false, false},
+	}
+	result := crs.MaxEscaped()
+	expect := 10.0
+	if result != expect {
+		t.Error(expect, result)
+	}
+}
+
 func TestCalcResultsEmptyZero(t *testing.T) {
 	crs := make(CalcResults)
 	result := crs.Sum()
@@ -79,8 +91,10 @@ func TestCalcResultsEmptyNaN(t *testing.T) {
 		f    func() float64
 	}{
 		{"Max", crs.Max},
+		{"MaxEscaped", crs.MaxEscaped},
 		{"Min", crs.Min},
 		{"Avg", crs.Avg},
+		{"AvgEscaped", crs.AvgEscaped},
 		{"Median", crs.Median},
 	}
 	for _, tc := range testCases {

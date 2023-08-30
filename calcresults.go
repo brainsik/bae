@@ -71,6 +71,23 @@ func (cr CalcResults) Max() float64 {
 	return float64(max)
 }
 
+// MaxEscaped returns the highest escaped val.
+func (cr CalcResults) MaxEscaped() float64 {
+	if len(cr) <= 0 {
+		return math.NaN()
+	}
+	var max uint
+	for _, v := range cr {
+		if !v.Escaped {
+			continue
+		}
+		if v.Val > max {
+			max = v.Val
+		}
+	}
+	return float64(max)
+}
+
 // Min returns the lowest val.
 func (cr CalcResults) Min() float64 {
 	if len(cr) <= 0 {
@@ -96,6 +113,19 @@ func (cr CalcResults) Sum() (sum uint) {
 // Avg returns the average of all vals.
 func (cr CalcResults) Avg() float64 {
 	return float64(cr.Sum()) / float64(len(cr))
+}
+
+// AvgEscaped returns the average of all escaped vals.
+func (cr CalcResults) AvgEscaped() float64 {
+	var num, sum float64
+	for _, v := range cr {
+		if v.Escaped {
+			sum += float64(v.Val)
+			num++
+		}
+	}
+
+	return sum / num
 }
 
 // Median returns the median of the sorted vals.
@@ -126,8 +156,8 @@ func (cr CalcResults) PrintStats() {
 	periodic_pct := 100 * float64(periodic) / float64(len(cr))
 
 	fmt.Printf("[CalcResults] "+
-		"total: %d, max: %.0f, avg: %.1f, median: %.0f, min: %.0f, "+
+		"total: %d, max(esc): %.0f(%.0f), avg(esc): %.1f(%.1f), median: %.0f, min: %.0f, "+
 		"escaped: %d (%.1f%%), periodic: %d (%.1f%%)\n",
-		len(cr), cr.Max(), cr.Avg(), cr.Median(), cr.Min(),
+		len(cr), cr.Max(), cr.MaxEscaped(), cr.Avg(), cr.AvgEscaped(), cr.Median(), cr.Min(),
 		escaped, escaped_pct, periodic, periodic_pct)
 }
