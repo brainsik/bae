@@ -36,14 +36,16 @@ func TestNewOrigin(t *testing.T) {
 
 func TestNewSize(t *testing.T) {
 	size := complex(8, 4)
-	x_pixels := 100
-	p1 := NewPlane(complex(0, 0), size, x_pixels)
+	y_pixels := 100
+	p1 := NewPlane(complex(0, 0), size, y_pixels)
 
 	expect_size := size - complex(4, 0)
-	expect_y_pixels := int(float64(x_pixels) * (real(expect_size) / imag(expect_size)))
+	aspect := real(expect_size) / imag(expect_size)
+	expect_x_pixels := int(float64(y_pixels) * aspect)
+
 	p2 := p1.NewSize(expect_size)
 	result_size := p2.size
-	result_y_pixels := p2.ImageHeight()
+	result_x_pixels := p2.ImageWidth()
 
 	if p1 == p2 {
 		t.Fatalf("Expected a new plane to be created.")
@@ -51,8 +53,8 @@ func TestNewSize(t *testing.T) {
 	if result_size != expect_size {
 		t.Errorf("Expected new size to be %v, got %v", expect_size, result_size)
 	}
-	if result_y_pixels != expect_y_pixels {
-		t.Errorf("Expected new image height to be %v, got %v", expect_y_pixels, result_y_pixels)
+	if result_x_pixels != expect_x_pixels {
+		t.Errorf("Expected new image width to be %v, got %v", expect_x_pixels, result_x_pixels)
 	}
 }
 
@@ -69,24 +71,25 @@ func TestView(t *testing.T) {
 	}
 }
 
-func TestImageWidth(t *testing.T) {
-	x_pixels := 128
-	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
+func TestImageHeight(t *testing.T) {
+	y_pixels := 128
+	p := NewPlane(complex(0, 0), complex(8, 4), y_pixels)
 
-	expect := x_pixels
-	result := p.ImageWidth()
+	expect := y_pixels
+	result := p.ImageHeight()
 
 	if result != expect {
 		t.Error(result, expect)
 	}
 }
 
-func TestImageHeight(t *testing.T) {
-	x_pixels := 128
-	p := NewPlane(complex(0, 0), complex(8, 4), x_pixels)
+func TestImageWidth(t *testing.T) {
+	y_pixels := 128
+	p := NewPlane(complex(0, 0), complex(8, 4), y_pixels)
 
-	expect := int(float64(x_pixels) / (real(p.size) / imag(p.size)))
-	result := p.ImageHeight()
+	aspect := real(p.size) / imag(p.size)
+	expect := int(float64(y_pixels) * aspect)
+	result := p.ImageWidth()
 
 	if result != expect {
 		t.Error(result, expect)
@@ -96,12 +99,12 @@ func TestImageHeight(t *testing.T) {
 func TestToComplexPoint(t *testing.T) {
 	origin := complex(-1, 1)
 	size := complex(1, 2)
-	x_pixels := 128
-	p := NewPlane(origin, size, x_pixels)
-	p_inverted := NewPlane(origin, size, x_pixels).WithInverted()
+	y_pixels := 128
+	p := NewPlane(origin, size, y_pixels)
+	p_inverted := NewPlane(origin, size, y_pixels).WithInverted()
 
-	aspect := imag(size) / real(size)
-	y_pixels := int(float64(x_pixels) * aspect)
+	aspect := real(size) / imag(size)
+	x_pixels := int(float64(y_pixels) * aspect)
 
 	testCases := []struct {
 		name   string
@@ -129,12 +132,12 @@ func TestToComplexPoint(t *testing.T) {
 func TestToImagePoint(t *testing.T) {
 	origin := complex(-1, 1)
 	size := complex(2, 1)
-	x_pixels := 100
-	p := NewPlane(origin, size, x_pixels)
-	p_inverted := NewPlane(origin, size, x_pixels).WithInverted()
+	y_pixels := 100
+	p := NewPlane(origin, size, y_pixels)
+	p_inverted := NewPlane(origin, size, y_pixels).WithInverted()
 
-	aspect := imag(size) / real(size)
-	y_pixels := int(float64(x_pixels) * aspect)
+	aspect := real(size) / imag(size)
+	x_pixels := int(float64(y_pixels) * aspect)
 
 	testCases := []struct {
 		name   string
@@ -188,8 +191,8 @@ func TestToImageToComplexToImagePoint(t *testing.T) {
 func TestPlaneJSONMarshaler(t *testing.T) {
 	origin := complex(2, 2)
 	size := complex(8, 4)
-	x_pixels := 128
-	p := NewPlane(origin, size, x_pixels).WithInverted()
+	y_pixels := 64
+	p := NewPlane(origin, size, y_pixels).WithInverted()
 
 	result, err := json.Marshal(p)
 	if err != nil {
@@ -211,7 +214,7 @@ func TestPlaneJSONUnmarshaler(t *testing.T) {
 	}
 	result_width := result.ImageWidth()
 
-	expect := NewPlane(complex(2, 2), complex(8, 4), 128).WithInverted()
+	expect := NewPlane(complex(2, 2), complex(8, 4), 64).WithInverted()
 	expect_width := expect.ImageWidth()
 
 	if result.origin != expect.origin {

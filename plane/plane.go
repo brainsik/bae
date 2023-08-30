@@ -68,14 +68,14 @@ func (p *Plane) WithInverted() *Plane {
 
 // NewOrigin returns a new Plane with the given origin.
 func (p *Plane) NewOrigin(origin complex128) *Plane {
-	new := NewPlane(origin, p.size, p.ImageWidth())
+	new := NewPlane(origin, p.size, p.ImageHeight())
 	new.inverted = p.inverted
 	return new
 }
 
 // NewSize returns a new Plane with the given complex plane size.
 func (p *Plane) NewSize(size complex128) *Plane {
-	new := NewPlane(p.origin, size, p.ImageWidth())
+	new := NewPlane(p.origin, size, p.ImageHeight())
 	new.inverted = p.inverted
 	return new
 }
@@ -250,9 +250,9 @@ func (p *Plane) UnmarshalJSON(data []byte) error {
 
 	origin := complex(v.Origin[0], v.Origin[1])
 	size := complex(v.Size[0], v.Size[1])
-	x_pixels := v.ImageSize[0]
+	y_pixels := v.ImageSize[1]
 
-	*p = *NewPlane(origin, size, x_pixels)
+	*p = *NewPlane(origin, size, y_pixels)
 	p.inverted = v.Inverted
 
 	return nil
