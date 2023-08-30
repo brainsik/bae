@@ -1,5 +1,3 @@
+*.png
 .DS_Store
-archive/
-curated/
 bae
-image*png
