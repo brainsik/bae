@@ -81,7 +81,9 @@ func (cp *CalcParams) String() string {
 func NewCalcParams(cp CalcParams) *CalcParams {
 	limit := cp.Limit
 	if limit == 0 {
-		limit = cmplx.Abs(cp.Plane.Size())
+		limit = 2 * math.Max(
+			cmplx.Abs(cp.Plane.View().Min),
+			cmplx.Abs(cp.Plane.View().Max))
 	}
 
 	return &CalcParams{
