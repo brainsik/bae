@@ -117,7 +117,7 @@ var cf_escaped_clip_value = ColorFunc{ //nolint:unused
 			if v.Escaped {
 				luma := GammaScale(val, max, params.Gamma)
 				rg := uint8(math.Min(255*luma*luma, 255))
-				b := uint8(math.Min(255*luma, 255))
+				b := uint8(math.Min(255*math.Sqrt(luma), 255))
 				coloring[xy] = color.NRGBA{rg, rg, b, 0xff}
 			} else {
 				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
@@ -136,8 +136,8 @@ var cf_escaped_clip_percent_avg = ColorFunc{ //nolint:unused
 			val := float64(v.Val)
 			if v.Escaped {
 				luma := GammaScale(val, max, params.Gamma)
-				rg := uint8(math.Min(255*luma*luma*luma, 255))
-				b := uint8(math.Min(255*luma, 255))
+				rg := uint8(math.Min(255*luma*luma, 255))
+				b := uint8(math.Min(255*math.Sqrt(luma), 255))
 				coloring[xy] = color.NRGBA{rg, rg, b, 0xff}
 			} else {
 				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
@@ -157,7 +157,7 @@ var cf_escaped_clip_percent_max = ColorFunc{ //nolint:unused
 			if v.Escaped {
 				luma := GammaScale(val, max, params.Gamma)
 				rg := uint8(math.Min(255*luma*luma, 255))
-				b := uint8(math.Min(255*luma, 255))
+				b := uint8(math.Min(255*math.Sqrt(luma), 255))
 				coloring[xy] = color.NRGBA{rg, rg, b, 0xff}
 			} else {
 				coloring[xy] = color.NRGBA{0, 0, 0, 0xff}
