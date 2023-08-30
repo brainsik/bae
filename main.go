@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	WIDTH      = 1200
-	ASPECT_INV = 0.625
+	HEIGHT = 800
+	ASPECT = 1.6
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 
 // Single orbit attractor.
 var klein = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.1, -0.54), complex(1.6*1/ASPECT_INV, 1.6), WIDTH).WithInverted(),
+	Plane: plane.NewPlane(complex(-0.1, -0.54), complex(1.6*ASPECT, 1.6), HEIGHT).WithInverted(),
 
 	Style:      Attractor,
 	ZF:         zf_klein,
@@ -39,7 +39,7 @@ var klein = NewCalcParams(CalcParams{ //nolint:unused
 
 // Multi-orbit map.
 var klein2_allpts = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.2, -1), complex(2.2, 2.2*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-0.2, -1), complex(2.2*ASPECT, 2.2), HEIGHT),
 
 	Style: Attractor,
 	ZF:    zf_klein2,
@@ -48,7 +48,7 @@ var klein2_allpts = NewCalcParams(CalcParams{ //nolint:unused
 
 // Multi-orbit map.
 var coldwave1 = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.19, 0.19), complex(0.8, 0.8*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-0.19, 0.19), complex(0.8*ASPECT, 0.8), HEIGHT),
 
 	Style:      Attractor,
 	ZF:         zf_klein,
@@ -69,7 +69,7 @@ var coldwave1_allpts = NewCalcParams(coldwave1.NewAllPoints( //nolint:unused
 
 // Single orbit attractor.
 var coldwave2 = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75*ASPECT, 3.75), HEIGHT),
 
 	Style:      Attractor,
 	ZF:         zf_klein,
@@ -85,7 +85,7 @@ var coldwave2 = NewCalcParams(CalcParams{ //nolint:unused
 })
 
 var coldwave2_julia = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75, 3.75*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-0.22, -0.175), complex(3.75*ASPECT, 3.75), HEIGHT),
 
 	Style:      Julia,
 	ZF:         zf_klein,
@@ -97,7 +97,7 @@ var coldwave2_julia = NewCalcParams(CalcParams{ //nolint:unused
 })
 
 var julia_classic = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(0, 0), complex(4, 4*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(0, 0), complex(4*ASPECT, 4), HEIGHT),
 
 	Style:      Julia,
 	ZF:         zf_mandelbrot,
@@ -109,8 +109,8 @@ var julia_classic = NewCalcParams(CalcParams{ //nolint:unused
 })
 
 var burning_ship = NewCalcParams(CalcParams{ //nolint:unused
-	// Plane: plane.NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT_INV), WIDTH),
-	Plane: plane.NewPlane(complex(-1.765, -0.035), complex(0.15, 0.15*ASPECT_INV), WIDTH).WithInverted(),
+	// Plane: plane.NewPlane(complex(1.75, 0.038), complex(0.145, 0.145*ASPECT_INV), HEIGHT),
+	Plane: plane.NewPlane(complex(-1.765, -0.035), complex(0.15*ASPECT, 0.15), HEIGHT).WithInverted(),
 
 	Style:      Mandelbrot,
 	ZF:         zf_burning_ship,
@@ -121,7 +121,7 @@ var burning_ship = NewCalcParams(CalcParams{ //nolint:unused
 })
 
 var mandelbrot = NewCalcParams(CalcParams{ //nolint:unused
-	Plane: plane.NewPlane(complex(-0.5, 0), complex(4, 4*ASPECT_INV), WIDTH),
+	Plane: plane.NewPlane(complex(-0.5, 0), complex(4*ASPECT, 4), HEIGHT),
 
 	Style:      Mandelbrot,
 	ZF:         zf_mandelbrot,

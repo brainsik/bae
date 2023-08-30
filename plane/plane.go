@@ -24,10 +24,10 @@ type Plane struct {
 }
 
 // NewPlane returns a new Plane.
-func NewPlane(origin, size complex128, x_pixels int) *Plane {
+func NewPlane(origin, size complex128, y_pixels int) *Plane {
 	view := PlaneView{origin - size/2, origin + size/2}
-	_inv_aspect_ratio := imag(size) / real(size)
-	y_pixels := int(float64(x_pixels) * _inv_aspect_ratio)
+	aspect_ratio := real(size) / imag(size)
+	x_pixels := int(float64(y_pixels) * aspect_ratio)
 
 	// Points per pixel.
 	r_step := real(size) / float64(x_pixels)
