@@ -58,6 +58,34 @@ func TestNewSize(t *testing.T) {
 	}
 }
 
+func TestNewImageSize(t *testing.T) {
+	size := complex(8, 4)
+	y_pixels := 100
+	p1 := NewPlane(complex(0, 0), size, y_pixels)
+
+	p2 := p1.NewImageSize(y_pixels, y_pixels)
+	result_size := p2.size
+	result_x_pixels := p2.ImageWidth()
+	result_y_pixels := p2.ImageHeight()
+
+	expect_size := complex(4, 4)
+	expect_x_pixels := y_pixels
+	expect_y_pixels := y_pixels
+
+	if p1 == p2 {
+		t.Fatalf("Expected a new plane to be created.")
+	}
+	if result_size != expect_size {
+		t.Errorf("Expected new size to be %v, got %v", expect_size, result_size)
+	}
+	if result_x_pixels != expect_x_pixels {
+		t.Errorf("Expected new image width to be %v, got %v", expect_x_pixels, result_x_pixels)
+	}
+	if result_y_pixels != expect_y_pixels {
+		t.Errorf("Expected new image height to be %v, got %v", expect_y_pixels, result_y_pixels)
+	}
+}
+
 func TestView(t *testing.T) {
 	p := NewPlane(complex(1, 1), complex(2, 2), 100)
 	expect := PlaneView{Min: complex(0, 0), Max: complex(2, 2)}

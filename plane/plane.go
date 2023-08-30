@@ -83,11 +83,13 @@ func (p *Plane) NewSize(size complex128) *Plane {
 // NewImageSize returns a new Plane with the given image size.
 func (p *Plane) NewImageSize(width, height int) *Plane {
 	aspect := float64(width) / float64(height)
-	size := complex(imag(p.size)*aspect, imag(p.size))
+
+	size := complex(imag(p.size)*aspect, imag(p.size)) // keep i size
 	if p.ImageWidth() == width {
-		size = complex(real(p.size), real(p.size)*(1.0/aspect))
+		size = complex(real(p.size), real(p.size)*(1.0/aspect)) // keep r size
 	}
-	new := NewPlane(p.origin, size, width)
+
+	new := NewPlane(p.origin, size, height)
 	new.inverted = p.inverted
 	return new
 }
